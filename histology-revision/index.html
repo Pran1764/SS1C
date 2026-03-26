@@ -1,0 +1,1052 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="theme-color" content="#1a5276">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="Histology">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" href="icons/icon-192.png">
+    <title>Histology Revision — Year 1 QMUL</title>
+    <style>
+        :root {
+            --primary: #1a5276;
+            --primary-light: #2980b9;
+            --accent: #27ae60;
+            --accent-hover: #219a52;
+            --wrong: #e74c3c;
+            --bg: #f0f4f8;
+            --card-bg: #ffffff;
+            --text: #2c3e50;
+            --text-light: #7f8c8d;
+            --shadow: 0 4px 20px rgba(0,0,0,0.08);
+            --radius: 14px;
+        }
+
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: 'Segoe UI', system-ui, -apple-system, sans-serif;
+            background: var(--bg);
+            color: var(--text);
+            min-height: 100vh;
+        }
+
+        /* ── Header ── */
+        header {
+            background: linear-gradient(135deg, var(--primary), var(--primary-light));
+            color: #fff;
+            padding: 18px 24px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        header h1 { font-size: 1.3rem; font-weight: 700; }
+        header h1 span { font-weight: 400; opacity: .8; font-size: .85rem; }
+
+        .stats {
+            display: flex;
+            gap: 18px;
+            font-size: .85rem;
+        }
+        .stats div { text-align: center; }
+        .stats .num { font-size: 1.4rem; font-weight: 700; display: block; }
+
+        /* ── Controls ── */
+        .controls {
+            background: #fff;
+            padding: 12px 24px;
+            display: flex;
+            gap: 10px;
+            flex-wrap: wrap;
+            align-items: center;
+            border-bottom: 1px solid #e0e6ed;
+        }
+        .controls label { font-size: .8rem; color: var(--text-light); font-weight: 600; text-transform: uppercase; letter-spacing: .5px; }
+        .controls select, .controls button {
+            padding: 6px 14px;
+            border-radius: 8px;
+            border: 1px solid #d5dbe3;
+            font-size: .85rem;
+            background: #fff;
+            cursor: pointer;
+        }
+        .controls button {
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            font-weight: 600;
+        }
+        .controls button:hover { background: var(--primary-light); }
+        .controls .shuffle-btn { background: #8e44ad; }
+        .controls .shuffle-btn:hover { background: #9b59b6; }
+        .controls .reset-btn { background: var(--wrong); }
+
+        /* ── Progress bar ── */
+        .progress-bar-container {
+            height: 4px;
+            background: #e0e6ed;
+        }
+        .progress-bar {
+            height: 100%;
+            background: var(--accent);
+            transition: width .4s ease;
+        }
+
+        /* ── Main card area ── */
+        .card-area {
+            max-width: 720px;
+            margin: 30px auto;
+            padding: 0 20px;
+        }
+
+        .card {
+            background: var(--card-bg);
+            border-radius: var(--radius);
+            box-shadow: var(--shadow);
+            overflow: hidden;
+        }
+
+        /* ── Image / slide placeholder ── */
+        .slide-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 4/3;
+            overflow: hidden;
+            background: #1a1a2e;
+        }
+        .slide-container img {
+            width: 100%;
+            height: 100%;
+            object-fit: contain;
+            display: block;
+        }
+        .slide-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,.7);
+            font-size: .85rem;
+            text-align: center;
+            padding: 20px;
+            gap: 8px;
+        }
+        .slide-placeholder .microscope { font-size: 3rem; }
+        .slide-placeholder .stain-tag {
+            background: rgba(255,255,255,.15);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .slide-label {
+            position: absolute;
+            top: 12px;
+            left: 12px;
+            background: rgba(0,0,0,.6);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: .7rem;
+            text-transform: uppercase;
+            letter-spacing: 1px;
+        }
+        .card-number {
+            position: absolute;
+            top: 12px;
+            right: 12px;
+            background: rgba(0,0,0,.6);
+            color: #fff;
+            padding: 4px 12px;
+            border-radius: 20px;
+            font-size: .75rem;
+        }
+
+        /* ── Question section ── */
+        .question-section {
+            padding: 24px;
+        }
+        .question-text {
+            font-size: 1.05rem;
+            font-weight: 600;
+            margin-bottom: 18px;
+            line-height: 1.5;
+        }
+        .topic-tag {
+            display: inline-block;
+            background: #eaf2f8;
+            color: var(--primary);
+            padding: 3px 10px;
+            border-radius: 20px;
+            font-size: .7rem;
+            font-weight: 600;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            letter-spacing: .5px;
+        }
+
+        /* ── MCQ options ── */
+        .options { display: flex; flex-direction: column; gap: 10px; }
+        .option-btn {
+            width: 100%;
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            background: #fff;
+            font-size: .92rem;
+            text-align: left;
+            cursor: pointer;
+            transition: all .2s;
+            font-family: inherit;
+        }
+        .option-btn:hover:not(.disabled) {
+            border-color: var(--primary-light);
+            background: #eaf2f8;
+        }
+        .option-btn.correct {
+            border-color: var(--accent);
+            background: #eafaf1;
+            color: #1e8449;
+            font-weight: 600;
+        }
+        .option-btn.wrong {
+            border-color: var(--wrong);
+            background: #fdedec;
+            color: #c0392b;
+        }
+        .option-btn.disabled { cursor: default; opacity: .7; }
+        .option-btn.disabled.correct { opacity: 1; }
+
+        /* ── Short answer ── */
+        .short-answer-area { display: flex; gap: 10px; flex-wrap: wrap; }
+        .short-answer-area input {
+            flex: 1;
+            min-width: 180px;
+            padding: 12px 16px;
+            border: 2px solid #e0e6ed;
+            border-radius: 10px;
+            font-size: .95rem;
+            font-family: inherit;
+            outline: none;
+        }
+        .short-answer-area input:focus { border-color: var(--primary-light); }
+        .short-answer-area input.correct-input { border-color: var(--accent); background: #eafaf1; }
+        .short-answer-area input.wrong-input { border-color: var(--wrong); background: #fdedec; }
+        .submit-btn {
+            padding: 12px 28px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: .92rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+        }
+        .submit-btn:hover { background: var(--primary-light); }
+
+        /* ── Feedback ── */
+        .feedback {
+            margin-top: 16px;
+            padding: 14px 18px;
+            border-radius: 10px;
+            font-size: .9rem;
+            line-height: 1.5;
+            display: none;
+        }
+        .feedback.show { display: block; }
+        .feedback.correct-fb { background: #eafaf1; color: #1e8449; border-left: 4px solid var(--accent); }
+        .feedback.wrong-fb { background: #fdedec; color: #922b21; border-left: 4px solid var(--wrong); }
+
+        /* ── Navigation ── */
+        .nav-row {
+            display: flex;
+            justify-content: space-between;
+            padding: 16px 24px;
+            border-top: 1px solid #f0f0f0;
+        }
+        .nav-btn {
+            padding: 10px 24px;
+            border: none;
+            border-radius: 10px;
+            font-size: .9rem;
+            font-weight: 600;
+            cursor: pointer;
+            font-family: inherit;
+            transition: background .2s;
+        }
+        .prev-btn { background: #ecf0f1; color: var(--text); }
+        .prev-btn:hover { background: #d5dbdb; }
+        .next-btn { background: var(--accent); color: #fff; }
+        .next-btn:hover { background: var(--accent-hover); }
+
+        /* ── Completion screen ── */
+        .completion {
+            text-align: center;
+            padding: 60px 30px;
+        }
+        .completion h2 { font-size: 1.6rem; margin-bottom: 10px; }
+        .completion .score { font-size: 3rem; font-weight: 700; color: var(--accent); margin: 20px 0; }
+        .completion p { color: var(--text-light); margin-bottom: 30px; }
+        .completion button {
+            padding: 12px 36px;
+            background: var(--primary);
+            color: #fff;
+            border: none;
+            border-radius: 10px;
+            font-size: 1rem;
+            font-weight: 600;
+            cursor: pointer;
+        }
+
+        /* ── Responsive ── */
+        @media (max-width: 520px) {
+            header { padding: 14px 16px; }
+            header h1 { font-size: 1.1rem; }
+            .card-area { padding: 0 12px; margin: 16px auto; }
+            .question-section { padding: 18px; }
+        }
+    </style>
+</head>
+<body>
+
+<header>
+    <h1>Histology Revision<br><span>Year 1 Medicine — QMUL</span></h1>
+    <div class="stats">
+        <div><span class="num" id="stat-correct">0</span>Correct</div>
+        <div><span class="num" id="stat-wrong">0</span>Wrong</div>
+        <div><span class="num" id="stat-remaining">0</span>Remaining</div>
+    </div>
+</header>
+
+<div class="controls">
+    <div>
+        <label>Topic</label><br>
+        <select id="topic-filter">
+            <option value="all">All Topics</option>
+        </select>
+    </div>
+    <div>
+        <label>Type</label><br>
+        <select id="type-filter">
+            <option value="all">All Types</option>
+            <option value="mcq">Multiple Choice</option>
+            <option value="short">Short Answer</option>
+        </select>
+    </div>
+    <button class="shuffle-btn" onclick="shuffleCards()">Shuffle</button>
+    <button class="reset-btn" onclick="resetProgress()">Reset</button>
+</div>
+
+<div class="progress-bar-container"><div class="progress-bar" id="progress-bar"></div></div>
+
+<div class="card-area" id="card-area">
+    <!-- Card rendered by JS -->
+</div>
+
+<script>
+// ══════════════════════════════════════════════════════════════
+//  QUESTION BANK — Year 1 QMUL Histology
+//  Each question has: topic, type (mcq|short), question text,
+//  answer, options (for mcq), explanation, image description,
+//  stain, and optional imageUrl for real photos.
+// ══════════════════════════════════════════════════════════════
+const QUESTIONS = [
+    // ── EPITHELIAL TISSUE ──
+    {
+        topic: "Epithelial Tissue",
+        type: "mcq",
+        question: "Identify this epithelium. It is a single layer of flattened cells lining a body cavity.",
+        options: ["Simple squamous epithelium", "Simple cuboidal epithelium", "Stratified squamous epithelium", "Transitional epithelium"],
+        answer: "Simple squamous epithelium",
+        explanation: "Simple squamous epithelium consists of a single layer of flat, scale-like cells. Found lining blood vessels (endothelium), body cavities (mesothelium), and Bowman's capsule.",
+        slideDesc: "Single layer of flat cells with bulging nuclei, very thin cytoplasm",
+        stain: "H&E",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/1/17/Simple_squamous_epithelium.png"
+    },
+    {
+        topic: "Epithelial Tissue",
+        type: "mcq",
+        question: "This section shows a single layer of cube-shaped cells with central round nuclei. What type of epithelium is this?",
+        options: ["Simple cuboidal epithelium", "Simple columnar epithelium", "Pseudostratified columnar epithelium", "Simple squamous epithelium"],
+        answer: "Simple cuboidal epithelium",
+        explanation: "Simple cuboidal epithelium has cells that are roughly as tall as they are wide, with round central nuclei. Found in kidney tubules, thyroid follicles, and small ducts.",
+        slideDesc: "Cube-shaped cells in a single layer, round central nuclei, lining a tubule",
+        stain: "H&E",
+        imageUrl: "https://upload.wikimedia.org/wikipedia/commons/f/f8/Illu_epithelium.jpg"
+    },
+    {
+        topic: "Epithelial Tissue",
+        type: "short",
+        question: "This epithelium appears stratified but all cells rest on the basement membrane. Some cells have cilia and goblet cells are present. Name this epithelium type.",
+        answer: "pseudostratified",
+        acceptAlso: ["pseudostratified columnar", "pseudostratified columnar epithelium", "pseudostratified ciliated columnar"],
+        explanation: "Pseudostratified ciliated columnar epithelium lines most of the upper respiratory tract. All cells touch the basement membrane but nuclei appear at different levels, giving a false impression of stratification.",
+        slideDesc: "Nuclei at different heights, cilia on surface, goblet cells visible",
+        stain: "H&E"
+    },
+    {
+        topic: "Epithelial Tissue",
+        type: "mcq",
+        question: "This thick epithelium has multiple layers. The surface cells are flat/squamous while basal cells are cuboidal. No keratinisation is visible. Where would you most likely find this?",
+        options: ["Oesophagus", "Skin (palm)", "Urinary bladder", "Trachea"],
+        answer: "Oesophagus",
+        explanation: "Non-keratinised stratified squamous epithelium lines wet surfaces subject to abrasion: the oesophagus, oral cavity, and vagina. The skin has keratinised stratified squamous epithelium.",
+        slideDesc: "Multiple cell layers, flat surface cells, no keratin layer, basal cells are cuboidal",
+        stain: "H&E"
+    },
+    {
+        topic: "Epithelial Tissue",
+        type: "short",
+        question: "This epithelium changes shape depending on organ distension. In the relaxed state the surface cells appear dome-shaped (umbrella cells). Name this epithelium.",
+        answer: "transitional",
+        acceptAlso: ["transitional epithelium", "urothelium"],
+        explanation: "Transitional epithelium (urothelium) lines the urinary tract — renal pelvis, ureters, bladder. Its unique dome-shaped umbrella cells stretch flat when the bladder fills.",
+        slideDesc: "Multiple layers, dome-shaped surface cells, underlying smaller rounded cells",
+        stain: "H&E"
+    },
+    {
+        topic: "Epithelial Tissue",
+        type: "mcq",
+        question: "This section shows tall cells in a single layer with basally located oval nuclei. Goblet cells are interspersed. What epithelium is this?",
+        options: ["Simple columnar epithelium", "Pseudostratified columnar epithelium", "Simple cuboidal epithelium", "Stratified columnar epithelium"],
+        answer: "Simple columnar epithelium",
+        explanation: "Simple columnar epithelium has tall cells with basally placed oval nuclei. With goblet cells it lines most of the GI tract from the stomach to the rectum.",
+        slideDesc: "Tall cells in a single row, basal oval nuclei, scattered goblet cells",
+        stain: "H&E"
+    },
+
+    // ── CONNECTIVE TISSUE ──
+    {
+        topic: "Connective Tissue",
+        type: "short",
+        question: "This section shows a highly cellular connective tissue with large, clear, spherical cells. Each cell has a thin rim of cytoplasm pushed to the periphery by a single large lipid droplet. Identify this tissue.",
+        answer: "adipose",
+        acceptAlso: ["adipose tissue", "white adipose", "white adipose tissue", "fat"],
+        explanation: "White adipose tissue consists of unilocular adipocytes — each cell stores one large fat droplet that pushes the nucleus to the edge (signet-ring appearance).",
+        slideDesc: "Large empty-looking spherical cells with peripheral nuclei, mesh-like appearance",
+        stain: "H&E"
+    },
+    {
+        topic: "Connective Tissue",
+        type: "mcq",
+        question: "This connective tissue shows densely packed, parallel collagen fibres with compressed fibroblast nuclei between them. What type of connective tissue is this?",
+        options: ["Dense regular connective tissue", "Dense irregular connective tissue", "Loose (areolar) connective tissue", "Reticular connective tissue"],
+        answer: "Dense regular connective tissue",
+        explanation: "Dense regular CT has collagen fibres arranged in parallel bundles, giving great tensile strength in one direction. Found in tendons and ligaments.",
+        slideDesc: "Parallel wavy collagen bundles, elongated dark nuclei of fibroblasts between bundles",
+        stain: "H&E"
+    },
+    {
+        topic: "Connective Tissue",
+        type: "mcq",
+        question: "This tissue shows chondrocytes sitting in lacunae within a glassy, homogeneous matrix. A perichondrium is visible at the edge. Identify the tissue.",
+        options: ["Hyaline cartilage", "Elastic cartilage", "Fibrocartilage", "Compact bone"],
+        answer: "Hyaline cartilage",
+        explanation: "Hyaline cartilage has a glassy (hyaline) matrix with chondrocytes in lacunae, often in isogenous groups. Found in tracheal rings, articular surfaces, and the fetal skeleton.",
+        slideDesc: "Glassy matrix, round chondrocytes in lacunae, some in clusters, perichondrium at edge",
+        stain: "H&E"
+    },
+    {
+        topic: "Connective Tissue",
+        type: "short",
+        question: "This tissue shows chondrocytes in lacunae surrounded by visible thick collagen fibre bundles running through the matrix. There is no perichondrium. Name this type of cartilage.",
+        answer: "fibrocartilage",
+        acceptAlso: ["fibro cartilage", "fibrous cartilage"],
+        explanation: "Fibrocartilage has visible collagen fibres in its matrix and lacks a perichondrium. Found in intervertebral discs, the pubic symphysis, and menisci of the knee.",
+        slideDesc: "Chondrocytes in lacunae, thick collagen bundles visible in matrix, no perichondrium",
+        stain: "H&E"
+    },
+
+    // ── MUSCLE TISSUE ──
+    {
+        topic: "Muscle Tissue",
+        type: "mcq",
+        question: "This section shows long, cylindrical, multinucleated fibres with peripheral nuclei and clear cross-striations. Identify this muscle type.",
+        options: ["Skeletal muscle", "Cardiac muscle", "Smooth muscle", "Myoepithelial cells"],
+        answer: "Skeletal muscle",
+        explanation: "Skeletal muscle fibres are long, cylindrical, multinucleated with peripherally placed nuclei and prominent cross-striations due to sarcomere organisation.",
+        slideDesc: "Long parallel fibres with cross-striations, multiple peripheral nuclei",
+        stain: "H&E"
+    },
+    {
+        topic: "Muscle Tissue",
+        type: "mcq",
+        question: "This muscle tissue shows branching fibres with central nuclei, cross-striations, and dark-staining structures at the junctions between cells. What are these dark junctional structures?",
+        options: ["Intercalated discs", "Z-lines", "Desmosomes", "Tight junctions"],
+        answer: "Intercalated discs",
+        explanation: "Intercalated discs are unique to cardiac muscle. They contain gap junctions (for electrical coupling), desmosomes, and fascia adherens (for mechanical attachment).",
+        slideDesc: "Branching striated fibres, central nuclei, dark step-like lines between cells",
+        stain: "H&E"
+    },
+    {
+        topic: "Muscle Tissue",
+        type: "short",
+        question: "This section shows spindle-shaped cells with single, centrally placed, cigar-shaped nuclei. No striations are visible. What type of muscle is this?",
+        answer: "smooth muscle",
+        acceptAlso: ["smooth"],
+        explanation: "Smooth muscle cells are fusiform (spindle-shaped) with a single central elongated nucleus. No striations because actin and myosin are not arranged in sarcomeres. Found in walls of hollow organs.",
+        slideDesc: "Spindle-shaped cells, central elongated nuclei, no cross-striations",
+        stain: "H&E"
+    },
+
+    // ── NERVOUS TISSUE ──
+    {
+        topic: "Nervous Tissue",
+        type: "short",
+        question: "In this section of the spinal cord, large multipolar cell bodies are visible in the grey matter with prominent nucleoli and surrounding Nissl substance. Identify these cells.",
+        answer: "motor neurons",
+        acceptAlso: ["motor neuron", "lower motor neurons", "lower motor neuron", "anterior horn cells", "alpha motor neurons"],
+        explanation: "Motor neurons (anterior horn cells) in the ventral horn of the spinal cord are large multipolar neurons with prominent Nissl bodies (rough ER) and a large pale nucleus with a conspicuous nucleolus.",
+        slideDesc: "Large cell bodies with pale nuclei, dark Nissl granules in cytoplasm, multiple processes",
+        stain: "H&E / Cresyl violet"
+    },
+    {
+        topic: "Nervous Tissue",
+        type: "mcq",
+        question: "In a peripheral nerve cross-section, each nerve fibre is surrounded by a clear space (myelin dissolved during processing) and a thin dark ring. What is the thin cellular sheath producing this myelin in the PNS?",
+        options: ["Schwann cell", "Oligodendrocyte", "Astrocyte", "Satellite cell"],
+        answer: "Schwann cell",
+        explanation: "In the PNS, Schwann cells produce the myelin sheath. Each Schwann cell myelinates one internode of one axon. In the CNS, oligodendrocytes are responsible for myelination.",
+        slideDesc: "Cross-section of nerve bundle, circles with clear halos and dark rings around central dots",
+        stain: "H&E / Osmium tetroxide"
+    },
+
+    // ── BLOOD & HAEMATOPOIETIC ──
+    {
+        topic: "Blood",
+        type: "short",
+        question: "On this blood smear, a large cell with a kidney/horseshoe-shaped nucleus and pale blue-grey cytoplasm is visible. Identify this cell.",
+        answer: "monocyte",
+        acceptAlso: ["monocytes"],
+        explanation: "Monocytes are the largest normal cells in peripheral blood. They have a kidney-shaped (reniform) nucleus and abundant pale blue-grey cytoplasm. They migrate into tissues and become macrophages.",
+        slideDesc: "Large cell among RBCs, kidney-shaped purple nucleus, pale grey-blue cytoplasm",
+        stain: "Giemsa / Wright's"
+    },
+    {
+        topic: "Blood",
+        type: "mcq",
+        question: "On this blood smear, a cell has a bilobed nucleus and prominent red/orange granules in its cytoplasm. What cell is this?",
+        options: ["Eosinophil", "Neutrophil", "Basophil", "Mast cell"],
+        answer: "Eosinophil",
+        explanation: "Eosinophils have a characteristic bilobed nucleus and large, red-orange (eosinophilic) granules. They are involved in parasitic defence and allergic responses.",
+        slideDesc: "Cell with bilobed nucleus, cytoplasm packed with bright red-orange granules",
+        stain: "Giemsa"
+    },
+    {
+        topic: "Blood",
+        type: "short",
+        question: "This blood smear shows a cell with a multi-lobed nucleus (3-5 lobes connected by thin strands) and fine, pale granules. Identify this cell.",
+        answer: "neutrophil",
+        acceptAlso: ["neutrophils", "polymorphonuclear leukocyte", "pmn"],
+        explanation: "Neutrophils are the most abundant WBC. They have a multi-lobed (typically 3-5 lobes) nucleus and fine, neutral-staining granules. They are the first responders to bacterial infection.",
+        slideDesc: "Cell with 3-5 nuclear lobes connected by thin chromatin strands, fine pale granules",
+        stain: "Giemsa"
+    },
+
+    // ── GI TRACT ──
+    {
+        topic: "GI Tract",
+        type: "mcq",
+        question: "This section shows the wall of a hollow organ with: mucosa containing gastric pits and glands, a thick muscularis externa with three indistinct layers, and rugae. Which organ is this?",
+        options: ["Stomach", "Duodenum", "Oesophagus", "Colon"],
+        answer: "Stomach",
+        explanation: "The stomach has gastric pits leading to gastric glands, rugae (mucosal folds), and a muscularis externa with an additional oblique layer (making 3 layers vs the usual 2).",
+        slideDesc: "Gastric pits opening to surface, glands deep in mucosa, thick muscle wall",
+        stain: "H&E"
+    },
+    {
+        topic: "GI Tract",
+        type: "short",
+        question: "This section of small intestine shows villi and, in the submucosa, there are coiled mucus-secreting glands. Name these submucosal glands.",
+        answer: "Brunner's glands",
+        acceptAlso: ["brunner glands", "brunners glands", "brunner's"],
+        explanation: "Brunner's glands are found in the submucosa of the duodenum. They secrete alkaline mucus to neutralise acidic chyme entering from the stomach. Their submucosal location is a key identifying feature.",
+        slideDesc: "Villi visible, coiled pale-staining glands in submucosa below muscularis mucosae",
+        stain: "H&E"
+    },
+    {
+        topic: "GI Tract",
+        type: "mcq",
+        question: "This section of large intestine shows straight tubular glands (crypts of Lieberkühn) packed with goblet cells but no villi. What organ is most likely?",
+        options: ["Colon", "Jejunum", "Ileum", "Duodenum"],
+        answer: "Colon",
+        explanation: "The colon has no villi (unlike small intestine). It has straight, deep crypts of Lieberkühn densely populated with goblet cells for mucus secretion. The muscularis externa has taeniae coli.",
+        slideDesc: "Straight tubular glands packed with goblet cells, no villi, flat luminal surface",
+        stain: "H&E"
+    },
+    {
+        topic: "GI Tract",
+        type: "short",
+        question: "This section of small intestine shows aggregated lymphoid follicles in the mucosa and submucosa on the anti-mesenteric border. Name these structures.",
+        answer: "Peyer's patches",
+        acceptAlso: ["peyer patches", "peyers patches", "peyer's patch", "aggregated lymphoid follicles"],
+        explanation: "Peyer's patches are aggregated lymphoid follicles found in the ileum, on the anti-mesenteric side. They are part of GALT (gut-associated lymphoid tissue) and sample luminal antigens via M cells.",
+        slideDesc: "Large dome-shaped lymphoid aggregates bulging into mucosa and submucosa, reduced villi overlying",
+        stain: "H&E"
+    },
+
+    // ── LIVER ──
+    {
+        topic: "Liver",
+        type: "mcq",
+        question: "This liver section shows a portal triad (portal tract). Which of the following is NOT a component of the portal triad?",
+        options: ["Central vein", "Portal vein branch", "Hepatic artery branch", "Bile duct"],
+        answer: "Central vein",
+        explanation: "The portal triad contains: (1) a branch of the portal vein, (2) a branch of the hepatic artery, and (3) a bile duct, all within connective tissue. The central vein is at the centre of the hepatic lobule, not in the portal triad.",
+        slideDesc: "Connective tissue tract containing three structures: large vein, small artery, bile duct lined by cuboidal epithelium",
+        stain: "H&E"
+    },
+    {
+        topic: "Liver",
+        type: "short",
+        question: "In this liver section, hepatocytes are arranged in plates radiating from a central vein, separated by vascular channels lined by fenestrated endothelium. Name these vascular channels.",
+        answer: "sinusoids",
+        acceptAlso: ["hepatic sinusoids", "liver sinusoids", "sinusoid"],
+        explanation: "Hepatic sinusoids are wide, irregular vascular channels between hepatocyte plates. They have a fenestrated, discontinuous endothelium and contain Kupffer cells (resident macrophages).",
+        slideDesc: "Hepatocyte plates radiating from central vein, irregular spaces between plates with scattered dark cells",
+        stain: "H&E"
+    },
+
+    // ── KIDNEY ──
+    {
+        topic: "Kidney",
+        type: "mcq",
+        question: "This renal cortex section shows a spherical structure with a tuft of capillaries enclosed by a double-walled capsule. Identify this structure.",
+        options: ["Renal corpuscle (glomerulus + Bowman's capsule)", "Collecting duct", "Loop of Henle", "Macula densa"],
+        answer: "Renal corpuscle (glomerulus + Bowman's capsule)",
+        explanation: "The renal corpuscle consists of the glomerulus (capillary tuft) surrounded by Bowman's capsule (visceral layer of podocytes + parietal layer of simple squamous epithelium). It is the filtration unit.",
+        slideDesc: "Round structure with capillary tuft inside a capsular space, surrounding tubules",
+        stain: "H&E"
+    },
+    {
+        topic: "Kidney",
+        type: "short",
+        question: "In the renal cortex, tubules with a brush border (microvilli), large eosinophilic cells, and a narrow lumen are visible. Identify these tubules.",
+        answer: "proximal convoluted tubule",
+        acceptAlso: ["pct", "proximal tubule", "proximal convoluted tubules"],
+        explanation: "Proximal convoluted tubules (PCTs) have large eosinophilic cells with a prominent brush border (microvilli), indistinct cell boundaries, and a narrow, irregular lumen. They reabsorb ~65% of the filtrate.",
+        slideDesc: "Tubules with thick eosinophilic walls, fuzzy brush border on luminal surface, narrow irregular lumen",
+        stain: "H&E"
+    },
+    {
+        topic: "Kidney",
+        type: "mcq",
+        question: "These tubules in the renal cortex have a clear, wide lumen, thinner walls than surrounding tubules, no brush border, and distinct cell boundaries. What are they?",
+        options: ["Distal convoluted tubule", "Proximal convoluted tubule", "Collecting duct", "Thin limb of loop of Henle"],
+        answer: "Distal convoluted tubule",
+        explanation: "Distal convoluted tubules (DCTs) have a wider lumen, thinner wall, no brush border, and clearer cell boundaries compared to PCTs. They are involved in sodium reabsorption and potassium secretion.",
+        slideDesc: "Tubules with wider clear lumen, thinner paler walls, distinct cell boundaries, no brush border",
+        stain: "H&E"
+    },
+
+    // ── RESPIRATORY ──
+    {
+        topic: "Respiratory",
+        type: "mcq",
+        question: "This cross-section shows a tube with C-shaped cartilage rings, pseudostratified ciliated columnar epithelium, and a posterior trachealis muscle. What structure is this?",
+        options: ["Trachea", "Primary bronchus", "Bronchiole", "Oesophagus"],
+        answer: "Trachea",
+        explanation: "The trachea has C-shaped hyaline cartilage rings (open posteriorly), pseudostratified ciliated columnar epithelium with goblet cells, and the trachealis smooth muscle bridging the open ends of the cartilage.",
+        slideDesc: "Large airway cross-section, C-shaped cartilage, tall ciliated epithelium, submucosal glands",
+        stain: "H&E"
+    },
+    {
+        topic: "Respiratory",
+        type: "short",
+        question: "In the lung, these structures are thin-walled air sacs where gas exchange occurs. Their walls contain type I and type II pneumocytes and are surrounded by capillaries. Identify them.",
+        answer: "alveoli",
+        acceptAlso: ["alveolus", "pulmonary alveoli"],
+        explanation: "Alveoli are the terminal air spaces for gas exchange. Type I pneumocytes (flat, cover 95% of surface) facilitate diffusion. Type II pneumocytes (cuboidal, produce surfactant) are fewer but regenerate type I cells.",
+        slideDesc: "Thin-walled air spaces like a honeycomb, capillaries in walls, very thin septa",
+        stain: "H&E"
+    },
+
+    // ── SKIN ──
+    {
+        topic: "Skin",
+        type: "mcq",
+        question: "This skin section shows a thick epidermis with all 5 layers visible, including a prominent stratum lucidum and thick stratum corneum. No hair follicles are present. What type of skin is this?",
+        options: ["Thick skin (glabrous)", "Thin skin (hairy)", "Mucous membrane", "Transitional epithelium"],
+        answer: "Thick skin (glabrous)",
+        explanation: "Thick skin is found on palms and soles. It has all 5 epidermal layers (basale, spinosum, granulosum, lucidum, corneum), a thick stratum corneum, eccrine sweat glands, but NO hair follicles or sebaceous glands.",
+        slideDesc: "Very thick epidermis with distinct layers, thick keratin layer on top, no hair follicles",
+        stain: "H&E"
+    },
+    {
+        topic: "Skin",
+        type: "short",
+        question: "In this section of skin, a coiled tubular gland is visible deep in the dermis. Its secretory portion has a wide lumen lined by a single layer of cuboidal cells with an outer layer of myoepithelial cells. What type of gland is this?",
+        answer: "eccrine sweat gland",
+        acceptAlso: ["eccrine", "sweat gland", "eccrine gland", "merocrine sweat gland"],
+        explanation: "Eccrine sweat glands are coiled tubular glands in the deep dermis. The secretory coil has cuboidal cells with myoepithelial cells. The duct is lined by stratified cuboidal epithelium. They produce watery sweat for thermoregulation.",
+        slideDesc: "Coiled tubular gland deep in dermis, wide lumen, cuboidal lining cells",
+        stain: "H&E"
+    },
+
+    // ── LYMPHOID ──
+    {
+        topic: "Lymphoid Tissue",
+        type: "mcq",
+        question: "This section shows a bean-shaped organ with a cortex containing lymphoid follicles (some with germinal centres) and a medulla with medullary cords and sinuses. A capsule and trabeculae are visible. What organ is this?",
+        options: ["Lymph node", "Spleen", "Thymus", "Tonsil"],
+        answer: "Lymph node",
+        explanation: "Lymph nodes have a cortex with follicles (B cells), paracortex (T cells), and a medulla with cords and sinuses. Lymph enters via afferent lymphatics and exits via the hilum.",
+        slideDesc: "Bean-shaped organ, outer cortex with round follicles, inner medulla with cords, surrounding capsule",
+        stain: "H&E"
+    },
+    {
+        topic: "Lymphoid Tissue",
+        type: "short",
+        question: "This section shows an organ with white pulp (periarteriolar lymphoid sheaths and follicles around central arterioles) and red pulp (splenic cords and venous sinuses). Identify this organ.",
+        answer: "spleen",
+        acceptAlso: ["the spleen"],
+        explanation: "The spleen has white pulp (lymphoid tissue around central arterioles — PALS for T cells, follicles for B cells) and red pulp (sinusoids and splenic cords for filtering blood). It has no cortex/medulla organisation or afferent lymphatics.",
+        slideDesc: "Dark blue islands (white pulp) with central arterioles, surrounded by red-staining areas with sinuses",
+        stain: "H&E"
+    },
+    {
+        topic: "Lymphoid Tissue",
+        type: "mcq",
+        question: "This lobulated organ shows a dark outer cortex packed with lymphocytes and a paler medulla with eosinophilic whorled structures. No follicles or germinal centres are present. What organ is this?",
+        options: ["Thymus", "Lymph node", "Spleen", "Tonsil"],
+        answer: "Thymus",
+        explanation: "The thymus has a dark cortex (immature T cells undergoing selection) and pale medulla containing Hassall's corpuscles (whorled keratinised structures). It involutes with age and is replaced by adipose tissue.",
+        slideDesc: "Lobulated organ, dark outer cortex, pale medulla with concentric whorled bodies",
+        stain: "H&E"
+    },
+
+    // ── BONE ──
+    {
+        topic: "Bone",
+        type: "short",
+        question: "This ground section of compact bone shows concentric rings of bone matrix around a central canal containing blood vessels. Osteocytes sit in lacunae connected by canaliculi. Name this structural unit.",
+        answer: "osteon",
+        acceptAlso: ["haversian system", "osteons"],
+        explanation: "The osteon (Haversian system) is the structural unit of compact bone. It consists of concentric lamellae around a central Haversian canal. Osteocytes in lacunae communicate via canaliculi.",
+        slideDesc: "Concentric rings around central canal, small dark lacunae with spider-web canaliculi",
+        stain: "Ground section / Unstained"
+    },
+
+    // ── ENDOCRINE ──
+    {
+        topic: "Endocrine",
+        type: "mcq",
+        question: "This section shows colloid-filled follicles lined by simple cuboidal/low columnar epithelium. The colloid stains pink and homogeneous. What organ is this?",
+        options: ["Thyroid gland", "Parathyroid gland", "Adrenal gland", "Pituitary gland"],
+        answer: "Thyroid gland",
+        explanation: "The thyroid gland has follicles filled with colloid (thyroglobulin). Follicular cells are cuboidal (euthyroid state). Parafollicular C cells (calcitonin) are scattered between follicles.",
+        slideDesc: "Round follicles of varying size filled with pink homogeneous colloid, cuboidal lining cells",
+        stain: "H&E"
+    },
+    {
+        topic: "Endocrine",
+        type: "short",
+        question: "In this section of the adrenal gland, three distinct zones are visible in the cortex. From outer to inner, name the three zones.",
+        answer: "glomerulosa, fasciculata, reticularis",
+        acceptAlso: ["zona glomerulosa zona fasciculata zona reticularis", "glomerulosa fasciculata reticularis"],
+        explanation: "The adrenal cortex has three zones: zona glomerulosa (outer, clusters — mineralocorticoids), zona fasciculata (middle, columns — glucocorticoids), and zona reticularis (inner, network — androgens). Mnemonic: GFR — salt, sugar, sex.",
+        slideDesc: "Three distinct cortical zones: outer arched clusters, middle parallel columns of pale cells, inner network of darker cells",
+        stain: "H&E"
+    },
+
+    // ── REPRODUCTIVE ──
+    {
+        topic: "Reproductive",
+        type: "mcq",
+        question: "This section shows a large fluid-filled structure with a prominent oocyte surrounded by granulosa cells and a theca layer. An antral cavity is visible. What stage is this ovarian follicle?",
+        options: ["Graafian (mature/tertiary) follicle", "Primordial follicle", "Primary follicle", "Corpus luteum"],
+        answer: "Graafian (mature/tertiary) follicle",
+        explanation: "The Graafian (mature) follicle has a large antral cavity, cumulus oophorus (mound holding the oocyte), zona pellucida, multi-layered granulosa, and differentiated theca interna/externa. It is ready for ovulation.",
+        slideDesc: "Large follicle with fluid-filled cavity, oocyte on a stalk of cells, surrounding granulosa and theca layers",
+        stain: "H&E"
+    },
+    {
+        topic: "Reproductive",
+        type: "short",
+        question: "This section shows cross-sections of seminiferous tubules lined by spermatogenic cells at various stages of maturation, with large pale cells at the base. Identify the large basal cells that support spermatogenesis.",
+        answer: "Sertoli cells",
+        acceptAlso: ["sertoli cell", "sertoli", "sustentacular cells"],
+        explanation: "Sertoli cells are large, pale supporting cells that extend from the basement membrane to the lumen of seminiferous tubules. They form the blood-testis barrier, nourish developing sperm, and secrete inhibin and ABP.",
+        slideDesc: "Cross-sections of tubules with layers of cells from base to lumen, large pale triangular cells at base",
+        stain: "H&E"
+    },
+
+    // ── VASCULAR ──
+    {
+        topic: "Vascular",
+        type: "mcq",
+        question: "This cross-section of a blood vessel shows a thick tunica media with many concentric elastic lamellae (visible as wavy dark lines). What type of vessel is this?",
+        options: ["Elastic (conducting) artery", "Muscular (distributing) artery", "Arteriole", "Vein"],
+        answer: "Elastic (conducting) artery",
+        explanation: "Elastic arteries (aorta, pulmonary trunk, common carotids) have numerous elastic lamellae in their tunica media, allowing them to stretch with systole and recoil during diastole (Windkessel effect).",
+        slideDesc: "Large vessel with many dark wavy concentric elastic lamellae in thick wall",
+        stain: "Elastic van Gieson / H&E"
+    },
+    {
+        topic: "Vascular",
+        type: "short",
+        question: "In this cross-section, a thin-walled blood vessel with a large irregular lumen and thin tunica media is seen alongside a thick-walled vessel with a round lumen. The thin-walled vessel is a ___.",
+        answer: "vein",
+        acceptAlso: ["veins"],
+        explanation: "Veins have relatively thin walls (especially thin tunica media) compared to their accompanying arteries, and larger, more irregular lumens. Arteries have a thicker wall relative to lumen diameter and maintain a round shape.",
+        slideDesc: "Two vessels side by side: one with thick wall and round lumen (artery), one with thin wall and collapsed lumen (vein)",
+        stain: "H&E"
+    },
+
+    // ── PANCREAS ──
+    {
+        topic: "Pancreas",
+        type: "short",
+        question: "In this pancreas section, pale-staining clusters of cells are scattered among darker-staining acinar tissue. Identify these pale clusters.",
+        answer: "islets of Langerhans",
+        acceptAlso: ["islets", "islet of langerhans", "pancreatic islets", "islets of langerhans"],
+        explanation: "Islets of Langerhans are the endocrine component of the pancreas. They appear as pale, less organised clusters among the basophilic exocrine acini. They contain alpha cells (glucagon), beta cells (insulin), and delta cells (somatostatin).",
+        slideDesc: "Pale round clusters of cells scattered among darker-staining acinar tissue",
+        stain: "H&E"
+    }
+];
+
+// ══════════════════════════════════════════════════════════════
+//  APP STATE
+// ══════════════════════════════════════════════════════════════
+let filteredQs = [...QUESTIONS];
+let currentIdx = 0;
+let correctCount = 0;
+let wrongCount = 0;
+let answeredSet = new Set();
+
+function getTopics() {
+    return [...new Set(QUESTIONS.map(q => q.topic))].sort();
+}
+
+function populateTopicFilter() {
+    const sel = document.getElementById('topic-filter');
+    getTopics().forEach(t => {
+        const opt = document.createElement('option');
+        opt.value = t;
+        opt.textContent = t;
+        sel.appendChild(opt);
+    });
+}
+
+function applyFilters() {
+    const topic = document.getElementById('topic-filter').value;
+    const type = document.getElementById('type-filter').value;
+    filteredQs = QUESTIONS.filter(q => {
+        if (topic !== 'all' && q.topic !== topic) return false;
+        if (type !== 'all' && q.type !== type) return false;
+        return true;
+    });
+    currentIdx = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    answeredSet = new Set();
+    renderCard();
+    updateStats();
+}
+
+function shuffleCards() {
+    for (let i = filteredQs.length - 1; i > 0; i--) {
+        const j = Math.floor(Math.random() * (i + 1));
+        [filteredQs[i], filteredQs[j]] = [filteredQs[j], filteredQs[i]];
+    }
+    currentIdx = 0;
+    correctCount = 0;
+    wrongCount = 0;
+    answeredSet = new Set();
+    renderCard();
+    updateStats();
+}
+
+function resetProgress() {
+    correctCount = 0;
+    wrongCount = 0;
+    answeredSet = new Set();
+    currentIdx = 0;
+    renderCard();
+    updateStats();
+}
+
+function updateStats() {
+    document.getElementById('stat-correct').textContent = correctCount;
+    document.getElementById('stat-wrong').textContent = wrongCount;
+    document.getElementById('stat-remaining').textContent = Math.max(0, filteredQs.length - answeredSet.size);
+    const pct = filteredQs.length ? (answeredSet.size / filteredQs.length * 100) : 0;
+    document.getElementById('progress-bar').style.width = pct + '%';
+}
+
+// ══════════════════════════════════════════════════════════════
+//  RENDER
+// ══════════════════════════════════════════════════════════════
+function renderCard() {
+    const area = document.getElementById('card-area');
+
+    if (filteredQs.length === 0) {
+        area.innerHTML = '<div class="card"><div class="completion"><h2>No questions match your filters</h2><p>Try changing the topic or type filter above.</p></div></div>';
+        return;
+    }
+
+    // Completion screen
+    if (answeredSet.size === filteredQs.length && answeredSet.size > 0) {
+        const pct = Math.round(correctCount / filteredQs.length * 100);
+        let msg = pct >= 80 ? 'Excellent work!' : pct >= 60 ? 'Good effort — review the ones you missed.' : 'Keep practising — you\'ll get there!';
+        area.innerHTML = `
+            <div class="card">
+                <div class="completion">
+                    <h2>Session Complete!</h2>
+                    <div class="score">${pct}%</div>
+                    <p>${correctCount}/${filteredQs.length} correct — ${msg}</p>
+                    <button onclick="resetProgress()">Try Again</button>
+                </div>
+            </div>`;
+        updateStats();
+        return;
+    }
+
+    const q = filteredQs[currentIdx];
+    const answered = answeredSet.has(currentIdx);
+
+    let imageHtml;
+    if (q.imageUrl) {
+        imageHtml = `<img src="${q.imageUrl}" alt="Histology slide" onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                     <div class="slide-placeholder" style="display:none;">
+                         <div class="microscope">🔬</div>
+                         <div>${q.slideDesc}</div>
+                         <div class="stain-tag">${q.stain}</div>
+                     </div>`;
+    } else {
+        imageHtml = `<div class="slide-placeholder">
+                         <div class="microscope">🔬</div>
+                         <div>${q.slideDesc}</div>
+                         <div class="stain-tag">${q.stain}</div>
+                     </div>`;
+    }
+
+    let answerHtml;
+    if (q.type === 'mcq') {
+        answerHtml = `<div class="options">${q.options.map((opt, i) => {
+            let cls = '';
+            if (answered) {
+                cls = 'disabled';
+                if (opt === q.answer) cls += ' correct';
+            }
+            return `<button class="option-btn ${cls}" onclick="checkMCQ(this, '${escapeStr(opt)}', '${escapeStr(q.answer)}')" ${answered ? 'disabled' : ''}>${opt}</button>`;
+        }).join('')}</div>`;
+    } else {
+        answerHtml = `<div class="short-answer-area">
+            <input type="text" id="short-input" placeholder="Type your answer..." ${answered ? 'disabled' : ''} onkeydown="if(event.key==='Enter')checkShort()">
+            <button class="submit-btn" onclick="checkShort()" ${answered ? 'disabled' : ''}>Check</button>
+        </div>`;
+    }
+
+    area.innerHTML = `
+        <div class="card">
+            <div class="slide-container">
+                ${imageHtml}
+                <div class="slide-label">${q.stain}</div>
+                <div class="card-number">${currentIdx + 1} / ${filteredQs.length}</div>
+            </div>
+            <div class="question-section">
+                <div class="topic-tag">${q.topic}</div>
+                <div class="question-text">${q.question}</div>
+                ${answerHtml}
+                <div class="feedback" id="feedback"></div>
+            </div>
+            <div class="nav-row">
+                <button class="nav-btn prev-btn" onclick="navigate(-1)">← Previous</button>
+                <button class="nav-btn next-btn" onclick="navigate(1)">Next →</button>
+            </div>
+        </div>`;
+
+    updateStats();
+}
+
+function escapeStr(s) {
+    return s.replace(/'/g, "\\'").replace(/"/g, '&quot;');
+}
+
+function showFeedback(isCorrect, explanation, correctAnswer) {
+    const fb = document.getElementById('feedback');
+    fb.className = 'feedback show ' + (isCorrect ? 'correct-fb' : 'wrong-fb');
+    if (isCorrect) {
+        fb.innerHTML = `<strong>Correct!</strong> ${explanation}`;
+    } else {
+        fb.innerHTML = `<strong>Incorrect.</strong> The answer is <strong>${correctAnswer}</strong>. ${explanation}`;
+    }
+}
+
+function checkMCQ(btn, selected, answer) {
+    if (answeredSet.has(currentIdx)) return;
+    answeredSet.add(currentIdx);
+
+    const q = filteredQs[currentIdx];
+    const isCorrect = selected === answer;
+
+    if (isCorrect) { correctCount++; } else { wrongCount++; }
+
+    // Style all buttons
+    btn.closest('.options').querySelectorAll('.option-btn').forEach(b => {
+        b.classList.add('disabled');
+        b.disabled = true;
+        if (b.textContent === q.answer) b.classList.add('correct');
+        if (b === btn && !isCorrect) b.classList.add('wrong');
+    });
+
+    showFeedback(isCorrect, q.explanation, q.answer);
+    updateStats();
+}
+
+function checkShort() {
+    if (answeredSet.has(currentIdx)) return;
+    const input = document.getElementById('short-input');
+    const userAns = input.value.trim().toLowerCase();
+    if (!userAns) return;
+
+    answeredSet.add(currentIdx);
+    const q = filteredQs[currentIdx];
+    const correctAns = q.answer.toLowerCase();
+    const alts = (q.acceptAlso || []).map(a => a.toLowerCase());
+
+    const isCorrect = userAns === correctAns || alts.includes(userAns);
+
+    if (isCorrect) { correctCount++; } else { wrongCount++; }
+
+    input.disabled = true;
+    input.classList.add(isCorrect ? 'correct-input' : 'wrong-input');
+    input.nextElementSibling.disabled = true;
+
+    showFeedback(isCorrect, q.explanation, q.answer);
+    updateStats();
+}
+
+function navigate(dir) {
+    currentIdx += dir;
+    if (currentIdx < 0) currentIdx = filteredQs.length - 1;
+    if (currentIdx >= filteredQs.length) currentIdx = 0;
+    renderCard();
+}
+
+// ── Init ──
+document.getElementById('topic-filter').addEventListener('change', applyFilters);
+document.getElementById('type-filter').addEventListener('change', applyFilters);
+populateTopicFilter();
+renderCard();
+updateStats();
+
+// Register service worker for PWA / offline support
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('./sw.js');
+}
+</script>
+</body>
+</html>
