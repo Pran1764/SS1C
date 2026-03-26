@@ -1,0 +1,507 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover, user-scalable=no">
+    <meta name="apple-mobile-web-app-capable" content="yes">
+    <meta name="apple-mobile-web-app-status-bar-style" content="black-translucent">
+    <meta name="apple-mobile-web-app-title" content="MedRevise">
+    <meta name="theme-color" content="#7c6cf0">
+    <meta name="mobile-web-app-capable" content="yes">
+    <meta name="application-name" content="MedRevise">
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="icons/icon-192.png">
+    <link rel="icon" type="image/png" sizes="192x192" href="icons/icon-192.png">
+    <title>QMUL Medicine Revision</title>
+    <style>
+        @import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700;800&display=swap');
+        *{margin:0;padding:0;box-sizing:border-box}
+        :root{
+            --bg:#0c0e14;--card:#161923;--card2:#1c1f2e;--accent:#7c6cf0;
+            --accent2:#a78bfa;--correct:#22c55e;--correct-bg:rgba(34,197,94,.12);
+            --wrong:#ef4444;--wrong-bg:rgba(239,68,68,.12);--text:#e8e8ed;
+            --dim:#8b8fa3;--border:#262a3a;--hover:#1f2335;
+            --safe-top:env(safe-area-inset-top,0px);
+            --safe-bottom:env(safe-area-inset-bottom,0px);
+        }
+        html{height:100%;-webkit-text-size-adjust:100%}
+        body{font-family:'Inter',system-ui,-apple-system,sans-serif;background:var(--bg);color:var(--text);min-height:100%;min-height:100dvh;overflow-x:hidden;-webkit-tap-highlight-color:transparent}
+
+        /* INSTALL BANNER */
+        .install-banner{display:none;padding:12px 20px;background:linear-gradient(135deg,#7c6cf0,#a78bfa);text-align:center;font-size:.82rem;font-weight:600;color:#fff;cursor:pointer;position:relative}
+        .install-banner .close-x{position:absolute;right:14px;top:50%;transform:translateY(-50%);font-size:1.1rem;cursor:pointer;opacity:.7}
+        .install-banner.show{display:block}
+
+        /* HEADER */
+        .header{background:linear-gradient(135deg,#161923,#1e2130);border-bottom:1px solid var(--border);padding:calc(var(--safe-top) + 14px) 20px 14px;display:flex;justify-content:space-between;align-items:center;position:sticky;top:0;z-index:100;backdrop-filter:blur(12px);-webkit-backdrop-filter:blur(12px)}
+        .header h1{font-size:1.15rem;font-weight:700;background:linear-gradient(135deg,#7c6cf0,#a78bfa);-webkit-background-clip:text;-webkit-text-fill-color:transparent;background-clip:text}
+        .header p{font-size:.7rem;color:var(--dim);margin-top:1px}
+        .stats{display:flex;gap:14px;align-items:center}
+        .stat-val{font-size:1.2rem;font-weight:700;text-align:center}
+        .stat-lbl{font-size:.55rem;color:var(--dim);text-transform:uppercase;letter-spacing:.5px;text-align:center}
+        .stat-val.g{color:var(--correct)}.stat-val.r{color:var(--wrong)}.stat-val.y{color:#f59e0b}.stat-val.b{color:var(--accent2)}
+
+        /* MODE BAR */
+        .mode-bar{display:flex;align-items:center;justify-content:space-between;padding:10px 20px;border-bottom:1px solid var(--border);background:var(--bg);gap:8px}
+        .mode-tabs{display:flex;gap:5px;flex-wrap:wrap}
+        .mode-tab{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--dim);cursor:pointer;font-size:.72rem;font-weight:500;transition:.2s;-webkit-tap-highlight-color:transparent}
+        .mode-tab:hover,.mode-tab:active{border-color:var(--accent);color:var(--text)}
+        .mode-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+        .shuffle-btn{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--dim);cursor:pointer;font-size:.72rem;font-weight:500;transition:.2s;white-space:nowrap}
+        .shuffle-btn:active{border-color:var(--accent);color:var(--text)}
+
+        /* CATEGORY TABS */
+        .cat-tabs{display:flex;gap:5px;padding:10px 20px;background:var(--bg);border-bottom:1px solid var(--border);overflow-x:auto;-webkit-overflow-scrolling:touch;scrollbar-width:none;flex-wrap:nowrap}
+        .cat-tabs::-webkit-scrollbar{display:none}
+        .cat-tab{padding:6px 12px;border-radius:7px;border:1px solid var(--border);background:var(--card);color:var(--dim);cursor:pointer;font-size:.72rem;font-weight:500;transition:.2s;white-space:nowrap;flex-shrink:0;-webkit-tap-highlight-color:transparent}
+        .cat-tab:active{border-color:var(--accent);color:var(--text)}
+        .cat-tab.active{background:var(--accent);border-color:var(--accent);color:#fff}
+        .cat-tab .cnt{margin-left:4px;font-size:.62rem;opacity:.7}
+
+        /* MAIN */
+        .main{max-width:700px;margin:0 auto;padding:20px 14px calc(var(--safe-bottom) + 20px)}
+
+        /* PROGRESS */
+        .prog-info{display:flex;justify-content:space-between;font-size:.75rem;color:var(--dim);margin-bottom:5px}
+        .prog-bar{height:4px;background:var(--border);border-radius:2px;overflow:hidden;margin-bottom:18px}
+        .prog-fill{height:100%;background:linear-gradient(90deg,var(--accent),var(--accent2));border-radius:2px;transition:width .4s}
+
+        /* CARD */
+        .card{background:var(--card);border:1px solid var(--border);border-radius:14px;overflow:hidden;transition:.3s}
+        .card-top{padding:16px 18px 0}
+        .card-body{padding:8px 18px 18px}
+        .badge-row{display:flex;gap:6px;margin-bottom:8px;flex-wrap:wrap}
+        .badge{padding:3px 9px;border-radius:5px;font-size:.65rem;font-weight:600}
+        .badge.cat{background:rgba(124,108,240,.15);color:var(--accent2)}
+        .badge.sub{background:rgba(96,165,250,.12);color:#60a5fa}
+        .badge.easy{background:rgba(34,197,94,.15);color:#4ade80}
+        .badge.medium{background:rgba(245,158,11,.15);color:#fbbf24}
+        .badge.hard{background:rgba(239,68,68,.15);color:#f87171}
+        .q-type{font-size:.65rem;text-transform:uppercase;letter-spacing:.8px;color:var(--accent);font-weight:600;margin-bottom:5px}
+        .q-text{font-size:1rem;font-weight:600;line-height:1.5;margin-bottom:16px}
+
+        /* MCQ */
+        .mcq{display:flex;flex-direction:column;gap:8px}
+        .opt{padding:12px 14px;border:1px solid var(--border);border-radius:9px;cursor:pointer;transition:.15s;font-size:.85rem;display:flex;align-items:center;gap:10px;-webkit-tap-highlight-color:transparent;user-select:none;-webkit-user-select:none}
+        .opt:active:not(.dis){border-color:var(--accent);background:rgba(124,108,240,.1)}
+        .opt .ol{width:26px;height:26px;border-radius:50%;border:1px solid var(--border);display:flex;align-items:center;justify-content:center;font-weight:600;font-size:.75rem;flex-shrink:0}
+        .opt.ok{border-color:var(--correct);background:var(--correct-bg)}.opt.ok .ol{background:var(--correct);border-color:var(--correct);color:#fff}
+        .opt.no{border-color:var(--wrong);background:var(--wrong-bg)}.opt.no .ol{background:var(--wrong);border-color:var(--wrong);color:#fff}
+        .opt.dis{cursor:default;opacity:.55}.opt.ok.dis{opacity:1}
+
+        /* SHORT ANSWER */
+        .sa-row{display:flex;gap:8px}
+        .sa-in{flex:1;padding:12px 14px;background:var(--bg);border:1px solid var(--border);border-radius:9px;color:var(--text);font-size:16px;font-family:'Inter',system-ui,sans-serif;outline:none;transition:.2s;-webkit-appearance:none}
+        .sa-in:focus{border-color:var(--accent)}.sa-in:disabled{opacity:.45}
+        .sa-btn{padding:12px 20px;background:var(--accent);border:none;border-radius:9px;color:#fff;font-weight:600;cursor:pointer;font-size:.85rem;transition:.2s;-webkit-tap-highlight-color:transparent}
+        .sa-btn:active{background:#6b5ce0}.sa-btn:disabled{opacity:.35;cursor:default}
+
+        /* FEEDBACK */
+        .fb{margin-top:12px;padding:14px;border-radius:9px;font-size:.85rem;line-height:1.5;animation:fadeUp .3s}
+        .fb.ok{background:var(--correct-bg);border:1px solid rgba(34,197,94,.25)}
+        .fb.no{background:var(--wrong-bg);border:1px solid rgba(239,68,68,.25)}
+        .fb-hd{font-weight:700;margin-bottom:4px}
+        .fb.ok .fb-hd{color:var(--correct)}.fb.no .fb-hd{color:var(--wrong)}
+        .fb-exp{color:var(--dim);font-size:.8rem;margin-top:6px;padding-top:6px;border-top:1px solid rgba(255,255,255,.06)}
+
+        .nxt{margin-top:16px;width:100%;padding:14px;background:linear-gradient(135deg,var(--accent),var(--accent2));border:none;border-radius:9px;color:#fff;font-weight:600;font-size:.92rem;cursor:pointer;transition:.2s;-webkit-tap-highlight-color:transparent}
+        .nxt:active{transform:scale(.98)}
+
+        /* COMPLETION */
+        .done{text-align:center;padding:40px 16px}
+        .done .icon{font-size:3.2rem;margin-bottom:10px}
+        .done h2{font-size:1.5rem;margin-bottom:5px}
+        .done .sub{font-size:.92rem;color:var(--dim);margin-bottom:24px}
+        .done-stats{display:flex;justify-content:center;gap:24px;margin-bottom:24px;flex-wrap:wrap}
+        .ds{text-align:center}.ds-v{font-size:1.7rem;font-weight:800}.ds-l{font-size:.72rem;color:var(--dim)}
+        .rbtn{padding:12px 24px;background:var(--accent);border:none;border-radius:9px;color:#fff;font-weight:600;font-size:.92rem;cursor:pointer;margin:5px;-webkit-tap-highlight-color:transparent}
+        .rbtn.sec{background:var(--card);border:1px solid var(--border)}
+
+        .keys{text-align:center;margin-top:12px;font-size:.7rem;color:var(--dim)}
+        kbd{background:var(--card);border:1px solid var(--border);border-radius:4px;padding:2px 5px;font-size:.65rem;font-family:'Inter',system-ui,sans-serif}
+
+        /* Swipe hint on mobile */
+        @media(hover:none){.keys{display:none}}
+
+        @keyframes fadeUp{from{opacity:0;transform:translateY(6px)}to{opacity:1;transform:translateY(0)}}
+
+        @media(max-width:600px){
+            .header{padding:calc(var(--safe-top) + 10px) 14px 10px}
+            .header h1{font-size:1.05rem}
+            .mode-bar{padding:8px 14px}
+            .cat-tabs{padding:8px 14px}
+            .main{padding:14px 10px calc(var(--safe-bottom) + 14px)}
+            .card-top{padding:14px 14px 0}
+            .card-body{padding:6px 14px 14px}
+            .q-text{font-size:.95rem}
+            .opt{padding:11px 12px;font-size:.82rem}
+            .stats{gap:10px}
+            .stat-val{font-size:1.05rem}
+        }
+    </style>
+</head>
+<body>
+
+<div class="install-banner" id="installBanner" onclick="installApp()">
+    Tap to install this app on your device
+    <span class="close-x" onclick="event.stopPropagation();dismissBanner()">×</span>
+</div>
+
+<div class="header">
+    <div><h1>Year 1 Medicine Revision</h1><p>Queen Mary University of London</p></div>
+    <div class="stats">
+        <div><div class="stat-val g" id="sC">0</div><div class="stat-lbl">Correct</div></div>
+        <div><div class="stat-val r" id="sW">0</div><div class="stat-lbl">Wrong</div></div>
+        <div><div class="stat-val y" id="sS">0</div><div class="stat-lbl">Streak</div></div>
+        <div><div class="stat-val b" id="sP">0%</div><div class="stat-lbl">Score</div></div>
+    </div>
+</div>
+<div class="mode-bar">
+    <div class="mode-tabs" id="modeTabs"></div>
+    <button class="shuffle-btn" onclick="restartDeck()">↻ Reshuffle</button>
+</div>
+<div class="cat-tabs" id="catTabs"></div>
+<div class="main" id="main"></div>
+
+<script>
+// ═══════════════════════════════════
+// PWA — Service Worker & Install
+// ═══════════════════════════════════
+if ('serviceWorker' in navigator) {
+    navigator.serviceWorker.register('sw.js').catch(() => {});
+}
+
+let deferredPrompt = null;
+window.addEventListener('beforeinstallprompt', e => {
+    e.preventDefault();
+    deferredPrompt = e;
+    document.getElementById('installBanner').classList.add('show');
+});
+
+function installApp() {
+    if (deferredPrompt) {
+        deferredPrompt.prompt();
+        deferredPrompt.userChoice.then(() => { deferredPrompt = null; });
+        document.getElementById('installBanner').classList.remove('show');
+    }
+}
+function dismissBanner() {
+    document.getElementById('installBanner').classList.remove('show');
+}
+
+window.addEventListener('appinstalled', () => {
+    document.getElementById('installBanner').classList.remove('show');
+});
+
+// ═══════════════════════════════════════
+// QUESTION BANK — Year 1 QMUL Medicine
+// ═══════════════════════════════════════
+const Q = [
+
+// ──────── ANATOMY ────────
+{cat:"Anatomy",sub:"Upper Limb",d:"medium",type:"mcq",q:"Which nerve is most commonly damaged in a midshaft fracture of the humerus?",opts:["Median nerve","Ulnar nerve","Radial nerve","Musculocutaneous nerve"],ans:2,exp:"The radial nerve runs in the radial (spiral) groove on the posterior surface of the humeral shaft. Midshaft fractures can damage it, causing wrist drop (loss of wrist and finger extension) and sensory loss over the anatomical snuffbox."},
+{cat:"Anatomy",sub:"Upper Limb",d:"easy",type:"short",q:"What is the name of the triangular anatomical space at the antecubital fossa through which the brachial artery pulse is palpated?",ans:"cubital fossa",accept:["cubital fossa","antecubital fossa"],exp:"The cubital fossa is bounded by brachioradialis laterally, pronator teres medially, and a line between the epicondyles superiorly. Contents (lateral to medial): biceps tendon, brachial artery, median nerve (TAN mnemonic)."},
+{cat:"Anatomy",sub:"Upper Limb",d:"medium",type:"mcq",q:"Damage to the long thoracic nerve causes paralysis of which muscle, leading to 'winging' of the scapula?",opts:["Rhomboid major","Trapezius","Serratus anterior","Levator scapulae"],ans:2,exp:"The long thoracic nerve (C5-C7) innervates serratus anterior, which protracts the scapula and holds it against the thoracic wall. Damage causes medial winging of the scapula, especially when pushing against a wall."},
+{cat:"Anatomy",sub:"Upper Limb",d:"hard",type:"short",q:"Which nerve passes through the carpal tunnel and is compressed in carpal tunnel syndrome?",ans:"median",accept:["median","median nerve"],exp:"The carpal tunnel contains the median nerve and 9 tendons (4 FDS, 4 FDP, FPL). Compression causes paraesthesia in the lateral 3.5 digits, thenar wasting, and weakness of thumb opposition (LOAF muscles)."},
+{cat:"Anatomy",sub:"Lower Limb",d:"medium",type:"mcq",q:"The femoral nerve, artery, and vein pass beneath the inguinal ligament. From lateral to medial, what is their order?",opts:["Vein, Artery, Nerve","Nerve, Artery, Vein","Artery, Nerve, Vein","Nerve, Vein, Artery"],ans:1,exp:"Mnemonic: NAVY (Nerve, Artery, Vein, Y-fronts) from lateral to medial. The femoral nerve lies in the muscular compartment, while the artery and vein lie in the vascular compartment of the femoral sheath."},
+{cat:"Anatomy",sub:"Lower Limb",d:"easy",type:"short",q:"What is the longest nerve in the body?",ans:"sciatic",accept:["sciatic","sciatic nerve"],exp:"The sciatic nerve (L4-S3) is the longest and widest nerve. It exits the pelvis through the greater sciatic foramen below piriformis, runs through the posterior thigh, and divides into the tibial and common peroneal (fibular) nerves (usually at the popliteal fossa)."},
+{cat:"Anatomy",sub:"Lower Limb",d:"medium",type:"mcq",q:"Damage to the common peroneal (fibular) nerve, often from a fibular neck fracture, causes which clinical sign?",opts:["Claw toes","Foot drop","Knee instability","Loss of ankle jerk"],ans:1,exp:"The common peroneal nerve wraps around the fibular neck making it vulnerable. Damage causes foot drop (inability to dorsiflex and evert the foot) due to paralysis of the anterior and lateral compartment muscles. Patients develop a high-stepping gait."},
+{cat:"Anatomy",sub:"Thorax",d:"easy",type:"mcq",q:"How many lobes does the right lung have?",opts:["One","Two","Three","Four"],ans:2,exp:"The right lung has 3 lobes (superior, middle, inferior) separated by the oblique and horizontal fissures. The left lung has 2 lobes (superior and inferior) separated by the oblique fissure, and also has the lingula (equivalent to the right middle lobe)."},
+{cat:"Anatomy",sub:"Thorax",d:"medium",type:"short",q:"At which vertebral level does the trachea bifurcate into the two main bronchi? (Give the name, e.g. T4)",ans:"T4",accept:["t4","t4/5","t4-t5","sternal angle"],exp:"The trachea bifurcates at the carina, at the level of T4/T5 (the sternal angle of Louis). The right main bronchus is wider, shorter, and more vertical — making it the more common site for inhaled foreign bodies."},
+{cat:"Anatomy",sub:"Thorax",d:"hard",type:"mcq",q:"The thoracic duct drains lymph from which parts of the body?",opts:["Right arm and right thorax only","Left arm and left thorax only","Everything below the diaphragm plus left upper body","Right upper body only"],ans:2,exp:"The thoracic duct drains lymph from the entire body EXCEPT the right upper limb, right thorax, and right side of head/neck (drained by the right lymphatic duct). It begins at the cisterna chyli (L1-L2), ascends through the aortic hiatus, and drains into the left venous angle (left subclavian + left IJV junction)."},
+{cat:"Anatomy",sub:"Abdomen",d:"medium",type:"mcq",q:"McBurney's point, used to locate the appendix, is found at which location?",opts:["One-third from the ASIS to the umbilicus on the right","One-third from the umbilicus to the ASIS on the right","Midway between the umbilicus and pubic symphysis","One-third from the ASIS to the umbilicus on the left"],ans:0,exp:"McBurney's point is located one-third of the way from the right anterior superior iliac spine (ASIS) to the umbilicus. Tenderness here is a classic sign of acute appendicitis."},
+{cat:"Anatomy",sub:"Abdomen",d:"easy",type:"short",q:"Which organ lies in the left hypochondrium and is the body's largest lymphoid organ?",ans:"spleen",accept:["spleen"],exp:"The spleen lies in the left hypochondrium, protected by ribs 9-11. It filters blood, removes old RBCs, and is the largest secondary lymphoid organ. The 1-3-5-7-9-11 rule: weighs 1×3×5 inches, 7 oz, between ribs 9-11."},
+{cat:"Anatomy",sub:"Abdomen",d:"medium",type:"mcq",q:"The portal vein is formed by the union of which two veins?",opts:["Hepatic vein + IVC","Superior mesenteric vein + splenic vein","Left gastric vein + right gastric vein","Inferior mesenteric vein + renal vein"],ans:1,exp:"The hepatic portal vein forms behind the neck of the pancreas from the union of the superior mesenteric vein (SMV) and splenic vein. The portal vein carries nutrient-rich blood from the GI tract to the liver for first-pass metabolism."},
+{cat:"Anatomy",sub:"Head & Neck",d:"medium",type:"mcq",q:"Which cranial nerve supplies the muscles of facial expression?",opts:["CN V (trigeminal)","CN VII (facial)","CN IX (glossopharyngeal)","CN XI (accessory)"],ans:1,exp:"CN VII (facial nerve) is the motor nerve to the muscles of facial expression. It exits the skull through the stylomastoid foramen. An UMN lesion spares the forehead (bilateral innervation); LMN lesion affects the entire ipsilateral face."},
+{cat:"Anatomy",sub:"Head & Neck",d:"hard",type:"short",q:"Which cranial nerve innervates the lateral rectus muscle of the eye?",ans:"abducens",accept:["abducens","cn vi","cn 6","vi","6","abducent"],exp:"CN VI (abducens) innervates the lateral rectus (LR6). Mnemonic: LR6SO4 — Lateral Rectus = CN VI, Superior Oblique = CN IV, all other extraocular muscles = CN III (oculomotor)."},
+{cat:"Anatomy",sub:"Head & Neck",d:"easy",type:"mcq",q:"How many cervical vertebrae are there in the human spine?",opts:["5","6","7","8"],ans:2,exp:"There are 7 cervical vertebrae (C1-C7). C1 (atlas) has no body and no spinous process. C2 (axis) has the dens (odontoid process). C7 (vertebra prominens) has the longest spinous process. Note there are 8 cervical spinal nerves despite only 7 vertebrae."},
+{cat:"Anatomy",sub:"Neuroanatomy",d:"medium",type:"mcq",q:"The corticospinal (pyramidal) tract decussates at which structure?",opts:["Internal capsule","Cerebral peduncle","Medullary pyramids","Pons"],ans:2,exp:"About 85% of corticospinal fibres cross (decussate) at the pyramidal decussation in the caudal medulla, forming the lateral corticospinal tract. This explains why a stroke in the left motor cortex causes right-sided weakness."},
+{cat:"Anatomy",sub:"Neuroanatomy",d:"hard",type:"short",q:"Which structure connects the two cerebral hemispheres and is the largest white matter commissure in the brain?",ans:"corpus callosum",accept:["corpus callosum"],exp:"The corpus callosum has four parts (anterior to posterior): rostrum, genu, body, and splenium. It connects corresponding cortical areas of the two hemispheres."},
+{cat:"Anatomy",sub:"Embryology",d:"medium",type:"mcq",q:"During gastrulation, the bilaminar disc becomes trilaminar. Which are the three germ layers?",opts:["Endoderm, mesoderm, ectoderm","Trophoblast, cytoblast, syncytioblast","Epiblast, hypoblast, amnion","Morula, blastula, gastrula"],ans:0,exp:"Gastrulation (week 3) converts the bilaminar disc into three germ layers: ectoderm (skin, CNS), mesoderm (muscle, bone, cardiovascular), and endoderm (GI lining, lungs, liver, pancreas). Cells migrate through the primitive streak."},
+{cat:"Anatomy",sub:"Embryology",d:"hard",type:"short",q:"The neural crest cells are derived from which germ layer?",ans:"ectoderm",accept:["ectoderm","neuroectoderm"],exp:"Neural crest cells arise from the neuroectoderm and migrate extensively. They give rise to: melanocytes, peripheral neurons, Schwann cells, adrenal medulla chromaffin cells, craniofacial bones/cartilage, and the aorticopulmonary septum."},
+{cat:"Anatomy",sub:"Thorax",d:"medium",type:"mcq",q:"The left recurrent laryngeal nerve loops under which structure before ascending to the larynx?",opts:["Left subclavian artery","Aortic arch (ligamentum arteriosum)","Left common carotid artery","Left pulmonary artery"],ans:1,exp:"The left recurrent laryngeal nerve loops under the aortic arch (at the ligamentum arteriosum) and ascends in the tracheo-oesophageal groove. The right recurrent laryngeal nerve loops under the right subclavian artery. Damage → hoarse voice."},
+{cat:"Anatomy",sub:"Abdomen",d:"hard",type:"short",q:"What is the embryological remnant of the ductus venosus called in the adult?",ans:"ligamentum venosum",accept:["ligamentum venosum"],exp:"Fetal shunts and their adult remnants: Ductus venosus → ligamentum venosum. Umbilical vein → ligamentum teres. Ductus arteriosus → ligamentum arteriosum. Umbilical arteries → medial umbilical ligaments. Foramen ovale → fossa ovalis."},
+
+// ──────── PHYSIOLOGY ────────
+{cat:"Physiology",sub:"Cardiovascular",d:"easy",type:"mcq",q:"What is the normal resting cardiac output in an adult (approximately)?",opts:["2 L/min","5 L/min","8 L/min","12 L/min"],ans:1,exp:"Cardiac output = heart rate × stroke volume. At rest: ~70 bpm × ~70 mL = ~5 L/min. During exercise it can increase to 20-25 L/min."},
+{cat:"Physiology",sub:"Cardiovascular",d:"medium",type:"short",q:"What is the name of the law that states stroke volume increases when venous return (preload) increases?",ans:"Frank-Starling",accept:["frank-starling","frank starling","starling","frank-starling law","starling's law"],exp:"The Frank-Starling law states that increased venous return stretches myocardial fibres, increasing force of contraction and thus stroke volume. This intrinsic mechanism matches left and right output."},
+{cat:"Physiology",sub:"Cardiovascular",d:"medium",type:"mcq",q:"Which phase of the cardiac cycle has the highest left ventricular pressure?",opts:["Isovolumetric relaxation","Atrial systole","Isovolumetric contraction","Rapid ventricular ejection"],ans:3,exp:"During rapid ventricular ejection, the LV pressure peaks at ~120 mmHg (systolic). Peak LV pressure occurs just after the aortic valve opens during rapid ejection."},
+{cat:"Physiology",sub:"Cardiovascular",d:"hard",type:"short",q:"In the ECG, the QRS complex represents which electrical event?",ans:"ventricular depolarisation",accept:["ventricular depolarisation","ventricular depolarization","depolarisation of ventricles","depolarization of ventricles"],exp:"P wave = atrial depolarisation, PR interval = AV node conduction delay, QRS = ventricular depolarisation, ST segment = ventricular plateau, T wave = ventricular repolarisation. Normal QRS duration is <120 ms."},
+{cat:"Physiology",sub:"Cardiovascular",d:"hard",type:"mcq",q:"During the cardiac cycle, which heart sound corresponds to closure of the aortic and pulmonary valves?",opts:["S1","S2","S3","S4"],ans:1,exp:"S1 ('lub') = closure of AV valves (mitral and tricuspid) at the start of systole. S2 ('dub') = closure of semilunar valves (aortic and pulmonary) at the start of diastole. S3 = rapid ventricular filling. S4 = atrial contraction against stiff ventricle."},
+{cat:"Physiology",sub:"Respiratory",d:"easy",type:"mcq",q:"What is the main muscle of inspiration?",opts:["External intercostals","Internal intercostals","Diaphragm","Rectus abdominis"],ans:2,exp:"The diaphragm (innervated by the phrenic nerve, C3-C5) is responsible for ~70% of the tidal volume at rest. 'C3, 4, 5 keeps the diaphragm alive.'"},
+{cat:"Physiology",sub:"Respiratory",d:"medium",type:"short",q:"What is the normal arterial partial pressure of oxygen (PaO2) in mmHg? (Give approximate value)",ans:"100",accept:["100","95-100","100 mmhg","95","~100"],exp:"Normal PaO2 is ~100 mmHg (13.3 kPa). Normal PaCO2 is ~40 mmHg (5.3 kPa)."},
+{cat:"Physiology",sub:"Respiratory",d:"medium",type:"mcq",q:"Which of the following shifts the oxygen-haemoglobin dissociation curve to the RIGHT (Bohr effect)?",opts:["Decreased temperature","Increased pH (alkalosis)","Increased CO2 and decreased pH","Decreased 2,3-DPG"],ans:2,exp:"Right shift = decreased Hb-O2 affinity = more O2 released to tissues. Caused by: ↑CO2, ↓pH, ↑temperature, ↑2,3-DPG. This is the Bohr effect — active tissues get more O2."},
+{cat:"Physiology",sub:"Respiratory",d:"hard",type:"mcq",q:"Type II respiratory failure is characterised by which blood gas pattern?",opts:["Low PaO2, low PaCO2","Low PaO2, normal PaCO2","Low PaO2, high PaCO2","Normal PaO2, high PaCO2"],ans:2,exp:"Type I = hypoxaemia with normal/low PaCO2. Type II = hypoxaemia + hypercapnia (high PaCO2) due to ventilatory failure (e.g. COPD, neuromuscular disease)."},
+{cat:"Physiology",sub:"Renal",d:"easy",type:"mcq",q:"Approximately what percentage of the cardiac output goes to the kidneys at rest?",opts:["5%","10%","20-25%","50%"],ans:2,exp:"The kidneys receive ~20-25% of cardiac output (~1.2 L/min), despite being only 0.5% of body weight. The GFR is ~125 mL/min (180 L/day), but >99% of filtrate is reabsorbed."},
+{cat:"Physiology",sub:"Renal",d:"medium",type:"short",q:"What is the normal glomerular filtration rate (GFR) in mL/min?",ans:"125",accept:["125","120","120-125","~125","125 ml/min"],exp:"Normal GFR is ~125 mL/min (~180 L/day). GFR is clinically estimated using creatinine clearance or eGFR equations."},
+{cat:"Physiology",sub:"Renal",d:"hard",type:"mcq",q:"Which part of the nephron is impermeable to water (even in the presence of ADH)?",opts:["Proximal convoluted tubule","Descending limb of loop of Henle","Ascending limb of loop of Henle","Collecting duct"],ans:2,exp:"The thick ascending limb is impermeable to water but actively transports Na+, K+, and 2Cl− out (via NKCC2 — target of loop diuretics). This creates the corticomedullary osmotic gradient."},
+{cat:"Physiology",sub:"Renal",d:"medium",type:"mcq",q:"ADH (vasopressin) acts on which part of the nephron to increase water reabsorption?",opts:["Proximal tubule","Ascending loop of Henle","Distal tubule only","Collecting duct"],ans:3,exp:"ADH acts on the collecting duct by inserting aquaporin-2 (AQP2) channels via V2 receptor activation. Diabetes insipidus results from lack of ADH (cranial) or resistance to ADH (nephrogenic)."},
+{cat:"Physiology",sub:"GI",d:"easy",type:"short",q:"What enzyme, secreted by the stomach chief cells, begins protein digestion?",ans:"pepsin",accept:["pepsin","pepsinogen"],exp:"Chief cells secrete pepsinogen, activated to pepsin by HCl (pH <2). Pepsin is an endopeptidase that works optimally at pH 1.5-2.5."},
+{cat:"Physiology",sub:"GI",d:"medium",type:"mcq",q:"Which hormone, released by I-cells of the duodenum, stimulates gallbladder contraction and pancreatic enzyme secretion?",opts:["Secretin","Gastrin","Cholecystokinin (CCK)","Motilin"],ans:2,exp:"CCK is released in response to fats and proteins in the duodenum. It stimulates gallbladder contraction, pancreatic enzyme secretion, and relaxation of the sphincter of Oddi."},
+{cat:"Physiology",sub:"GI",d:"hard",type:"short",q:"Where is vitamin B12 absorbed in the GI tract?",ans:"terminal ileum",accept:["terminal ileum","ileum","distal ileum"],exp:"B12 binds intrinsic factor (IF, from parietal cells), and the IF-B12 complex is absorbed in the terminal ileum via cubam receptors. Gastrectomy, pernicious anaemia, or ileal Crohn's can cause B12 deficiency."},
+{cat:"Physiology",sub:"Endocrine",d:"easy",type:"mcq",q:"Which hormone is secreted by the posterior pituitary and promotes water reabsorption?",opts:["ACTH","Oxytocin","Prolactin","ADH (vasopressin)"],ans:3,exp:"The posterior pituitary releases ADH (from supraoptic nucleus) and oxytocin (from paraventricular nucleus). The anterior pituitary secretes ACTH, TSH, GH, FSH, LH, prolactin."},
+{cat:"Physiology",sub:"Endocrine",d:"medium",type:"mcq",q:"Which cells of the pancreatic islets produce insulin?",opts:["Alpha cells","Beta cells","Delta cells","PP cells"],ans:1,exp:"Beta cells (~70% of islets) secrete insulin in response to high blood glucose. Alpha cells secrete glucagon. Delta cells secrete somatostatin."},
+{cat:"Physiology",sub:"Endocrine",d:"hard",type:"short",q:"What enzyme converts angiotensin I to angiotensin II, and where is it primarily located?",ans:"ACE",accept:["ace","angiotensin converting enzyme","angiotensin-converting enzyme","ACE in lungs","ace in the lungs"],exp:"ACE is on the pulmonary vascular endothelium. RAAS: renin → angiotensinogen → angiotensin I → ACE → angiotensin II (vasoconstrictor, stimulates aldosterone). ACE also degrades bradykinin — causing dry cough with ACE inhibitors."},
+{cat:"Physiology",sub:"Endocrine",d:"medium",type:"mcq",q:"Cortisol is released from the adrenal cortex under the control of which pituitary hormone?",opts:["TSH","FSH","ACTH","GH"],ans:2,exp:"HPA axis: Hypothalamus → CRH → Anterior pituitary → ACTH → Adrenal cortex (zona fasciculata) → cortisol. Excess = Cushing's syndrome. Deficiency = Addison's disease."},
+{cat:"Physiology",sub:"Endocrine",d:"hard",type:"short",q:"Which hormone produced by the kidneys stimulates red blood cell production?",ans:"erythropoietin",accept:["erythropoietin","epo"],exp:"EPO is produced by peritubular interstitial cells in response to hypoxia. Chronic kidney disease → reduced EPO → renal anaemia."},
+{cat:"Physiology",sub:"Neurophysiology",d:"medium",type:"mcq",q:"During an action potential, which ion rapidly enters the neuron during depolarisation?",opts:["K+","Na+","Ca2+","Cl−"],ans:1,exp:"Depolarisation: voltage-gated Na+ channels open → rapid Na+ influx → membrane potential rises from −70 mV to +30 mV. Repolarisation: Na+ channels inactivate, K+ channels open → K+ efflux."},
+{cat:"Physiology",sub:"Neurophysiology",d:"easy",type:"short",q:"What is the approximate resting membrane potential of a neuron?",ans:"-70 mV",accept:["-70","-70mv","-70 mv","minus 70","−70 mv","-70 millivolts"],exp:"The resting membrane potential is ~−70 mV, maintained by the Na+/K+-ATPase (3 Na+ out, 2 K+ in) and K+ leak channels."},
+
+// ──────── BIOCHEMISTRY ────────
+{cat:"Biochemistry",sub:"Metabolism",d:"easy",type:"mcq",q:"Glycolysis occurs in which cellular compartment?",opts:["Mitochondrial matrix","Cytoplasm","Endoplasmic reticulum","Nucleus"],ans:1,exp:"Glycolysis (glucose → 2 pyruvate) occurs in the cytoplasm. Net gain: 2 ATP and 2 NADH per glucose. Key enzymes: hexokinase, PFK-1 (key regulator), pyruvate kinase."},
+{cat:"Biochemistry",sub:"Metabolism",d:"medium",type:"short",q:"What is the net ATP yield from one cycle of the Krebs (TCA) cycle?",ans:"1",accept:["1","1 atp","one","1 gtp"],exp:"One turn produces: 3 NADH, 1 FADH2, 1 GTP (≡ 1 ATP), and 2 CO2. The major ATP yield comes from oxidative phosphorylation of NADH and FADH2."},
+{cat:"Biochemistry",sub:"Metabolism",d:"medium",type:"mcq",q:"Approximately how many ATP molecules are produced from the complete oxidation of one glucose molecule?",opts:["2","12","30-32","50"],ans:2,exp:"Complete oxidation: Glycolysis (2 ATP, 2 NADH) + pyruvate dehydrogenase (2 NADH) + 2× Krebs (6 NADH, 2 FADH2, 2 GTP) → ~30-32 ATP via oxidative phosphorylation."},
+{cat:"Biochemistry",sub:"Metabolism",d:"hard",type:"short",q:"Which enzyme is the rate-limiting step of glycolysis?",ans:"PFK-1",accept:["pfk-1","pfk1","phosphofructokinase","phosphofructokinase-1","pfk"],exp:"PFK-1 catalyses fructose-6-phosphate → fructose-1,6-bisphosphate. Activated by AMP, ADP, fructose-2,6-bisphosphate. Inhibited by ATP and citrate."},
+{cat:"Biochemistry",sub:"Metabolism",d:"medium",type:"mcq",q:"Beta-oxidation of fatty acids occurs in which cellular compartment?",opts:["Cytoplasm","Mitochondrial matrix","Peroxisomes only","Smooth ER"],ans:1,exp:"Beta-oxidation occurs in the mitochondrial matrix. Long-chain fatty acids require the carnitine shuttle (CPT-I and CPT-II) to enter."},
+{cat:"Biochemistry",sub:"Metabolism",d:"hard",type:"mcq",q:"In starvation, the liver produces ketone bodies. Which of the following is NOT a ketone body?",opts:["Acetoacetate","Beta-hydroxybutyrate","Acetone","Pyruvate"],ans:3,exp:"The three ketone bodies are: acetoacetate, beta-hydroxybutyrate, and acetone. Pyruvate is the end product of glycolysis. The liver cannot USE ketone bodies (lacks thiophorase)."},
+{cat:"Biochemistry",sub:"Metabolism",d:"medium",type:"mcq",q:"Gluconeogenesis primarily occurs in which organ?",opts:["Brain","Skeletal muscle","Liver","Adipose tissue"],ans:2,exp:"Gluconeogenesis occurs primarily in the liver. Substrates: lactate (Cori cycle), glycerol, glucogenic amino acids (especially alanine). Stimulated by glucagon and cortisol."},
+{cat:"Biochemistry",sub:"Molecular Biology",d:"easy",type:"mcq",q:"DNA replication is described as 'semi-conservative'. This means:",opts:["Both strands are old","Both strands are new","Each new double helix has one old and one new strand","Only one strand is copied"],ans:2,exp:"Each daughter DNA molecule contains one parental strand and one newly synthesised strand. Proven by the Meselson-Stahl experiment (1958)."},
+{cat:"Biochemistry",sub:"Molecular Biology",d:"medium",type:"short",q:"What is the start codon in mRNA, and which amino acid does it code for?",ans:"AUG",accept:["aug","aug methionine","aug met","AUG","methionine"],exp:"AUG codes for methionine. The three stop codons are UAA, UAG, and UGA. The genetic code is degenerate but unambiguous."},
+{cat:"Biochemistry",sub:"Molecular Biology",d:"hard",type:"mcq",q:"Which type of RNA carries amino acids to the ribosome during translation?",opts:["mRNA","rRNA","tRNA","snRNA"],ans:2,exp:"tRNA has an anticodon loop and amino acid attachment site at its 3' CCA end. Aminoacyl-tRNA synthetases charge each tRNA with the correct amino acid."},
+{cat:"Biochemistry",sub:"Molecular Biology",d:"medium",type:"mcq",q:"Which enzyme synthesises mRNA from a DNA template?",opts:["DNA polymerase","RNA polymerase II","Reverse transcriptase","Helicase"],ans:1,exp:"RNA Pol I → rRNA, RNA Pol II → mRNA, RNA Pol III → tRNA. RNA Pol II binds promoter regions (TATA box) with general transcription factors."},
+{cat:"Biochemistry",sub:"Enzymes & Vitamins",d:"easy",type:"mcq",q:"Competitive enzyme inhibitors work by:",opts:["Binding to the allosteric site","Irreversibly modifying the enzyme","Competing with the substrate for the active site","Decreasing Vmax"],ans:2,exp:"Competitive inhibitors bind the active site, increasing apparent Km but NOT changing Vmax (can be overcome by excess substrate). Non-competitive inhibitors decrease Vmax without changing Km."},
+{cat:"Biochemistry",sub:"Enzymes & Vitamins",d:"medium",type:"short",q:"Deficiency of which vitamin causes scurvy?",ans:"vitamin C",accept:["vitamin c","vit c","ascorbic acid","c"],exp:"Vitamin C is a cofactor for prolyl and lysyl hydroxylases, essential for collagen cross-linking. Deficiency → scurvy: bleeding gums, petechiae, poor wound healing."},
+{cat:"Biochemistry",sub:"Enzymes & Vitamins",d:"medium",type:"mcq",q:"Thiamine (vitamin B1) deficiency causes which condition?",opts:["Pellagra","Beriberi","Scurvy","Rickets"],ans:1,exp:"Thiamine is a cofactor for pyruvate dehydrogenase, alpha-ketoglutarate dehydrogenase, and transketolase. Deficiency → beriberi. In alcoholics → Wernicke's encephalopathy → Korsakoff's syndrome."},
+
+// ──────── PHARMACOLOGY ────────
+{cat:"Pharmacology",sub:"General Principles",d:"easy",type:"mcq",q:"The term 'bioavailability' refers to:",opts:["The speed of drug metabolism","The fraction of administered drug reaching systemic circulation","The volume in which a drug distributes","The rate of renal excretion"],ans:1,exp:"Bioavailability (F) is the fraction reaching systemic circulation unchanged. IV = 100%. Oral is reduced by incomplete absorption and first-pass metabolism."},
+{cat:"Pharmacology",sub:"General Principles",d:"medium",type:"short",q:"What is the term for the drug dose required to produce 50% of the maximum response?",ans:"ED50",accept:["ed50","ec50","effective dose 50"],exp:"ED50 is a measure of potency — the lower the ED50, the more potent the drug. Efficacy is the maximum effect a drug can produce (Emax)."},
+{cat:"Pharmacology",sub:"General Principles",d:"hard",type:"mcq",q:"A drug with a narrow therapeutic index means:",opts:["It has very high bioavailability","The difference between therapeutic and toxic doses is small","It has a very long half-life","It only works on one receptor type"],ans:1,exp:"Examples: warfarin, digoxin, lithium, phenytoin, theophylline, gentamicin. These require therapeutic drug monitoring (TDM)."},
+{cat:"Pharmacology",sub:"ANS Pharmacology",d:"medium",type:"mcq",q:"Atropine is a muscarinic antagonist. Which of these effects would you expect?",opts:["Bradycardia","Bronchoconstriction","Pupil dilation (mydriasis)","Increased gut motility"],ans:2,exp:"Atropine blocks parasympathetic muscarinic receptors → tachycardia, mydriasis, bronchodilation, decreased secretions, decreased gut motility. Mnemonic: 'Hot as a hare, blind as a bat, dry as a bone, red as a beet, mad as a hatter.'"},
+{cat:"Pharmacology",sub:"ANS Pharmacology",d:"easy",type:"short",q:"Adrenaline (epinephrine) acts on adrenergic receptors. Does it primarily activate alpha, beta, or both types of receptors?",ans:"both",accept:["both","alpha and beta","both alpha and beta"],exp:"Adrenaline activates both alpha and beta receptors. Low dose: beta effects (↑HR, bronchodilation). High dose: alpha effects also (vasoconstriction). Drug of choice in anaphylaxis."},
+{cat:"Pharmacology",sub:"Antibiotics",d:"medium",type:"mcq",q:"Penicillins and cephalosporins kill bacteria by inhibiting:",opts:["DNA gyrase","Protein synthesis at the 30S ribosome","Cell wall synthesis (peptidoglycan cross-linking)","Folic acid synthesis"],ans:2,exp:"Beta-lactams inhibit transpeptidases (PBPs), preventing peptidoglycan cross-linking. They are bactericidal. Resistance via beta-lactamase (overcome by clavulanic acid)."},
+{cat:"Pharmacology",sub:"Antibiotics",d:"hard",type:"short",q:"Which class of antibiotics inhibits the bacterial 30S ribosomal subunit and includes gentamicin?",ans:"aminoglycosides",accept:["aminoglycosides","aminoglycoside"],exp:"Aminoglycosides bind the 30S subunit, causing mRNA misreading. Bactericidal, effective against Gram-negatives. Side effects: nephrotoxicity and ototoxicity. Require TDM."},
+{cat:"Pharmacology",sub:"Pain & Inflammation",d:"easy",type:"mcq",q:"NSAIDs (e.g. ibuprofen) work by inhibiting which enzyme?",opts:["Lipoxygenase","Phosphodiesterase","Cyclooxygenase (COX)","Monoamine oxidase"],ans:2,exp:"NSAIDs inhibit COX-1 and/or COX-2, reducing prostaglandin synthesis → anti-inflammatory, analgesic, antipyretic. COX-1 inhibition → GI side effects."},
+{cat:"Pharmacology",sub:"Pain & Inflammation",d:"medium",type:"short",q:"Opioids (e.g. morphine) act on which type of receptor?",ans:"mu",accept:["mu","mu opioid","μ","opioid","mu receptor","mu opioid receptor"],exp:"Mu (μ) receptors mediate analgesia, euphoria, respiratory depression, constipation. Naloxone is a competitive mu antagonist for overdose reversal."},
+{cat:"Pharmacology",sub:"Cardiovascular Drugs",d:"medium",type:"mcq",q:"Beta-blockers (e.g. bisoprolol) main cardiac effect is:",opts:["Increased heart rate","Increased contractility","Decreased heart rate and contractility","Vasodilation only"],ans:2,exp:"Beta-blockers block β1 receptors → decreased HR (negative chronotropy), decreased contractility (negative inotropy). Contraindicated in asthma (β2 blockade → bronchoconstriction)."},
+{cat:"Pharmacology",sub:"Cardiovascular Drugs",d:"hard",type:"short",q:"Which class of diuretic acts on the loop of Henle by inhibiting the Na-K-2Cl cotransporter?",ans:"loop diuretics",accept:["loop diuretics","loop","loop diuretic","furosemide"],exp:"Loop diuretics (furosemide, bumetanide) inhibit NKCC2 in the thick ascending limb. Most potent diuretics. Side effects: hypokalaemia, ototoxicity."},
+
+// ──────── IMMUNOLOGY ────────
+{cat:"Immunology",sub:"Innate Immunity",d:"easy",type:"mcq",q:"Which cells are the 'first responders' to arrive at a site of acute bacterial infection?",opts:["Eosinophils","Lymphocytes","Neutrophils","Basophils"],ans:2,exp:"Neutrophils arrive within hours via chemotaxis (IL-8, C5a, LTB4). They kill bacteria via phagocytosis, oxidative burst (ROS), and degranulation. Short-lived (1-2 days)."},
+{cat:"Immunology",sub:"Innate Immunity",d:"medium",type:"short",q:"What is the term for the system of ~30 plasma proteins that forms a membrane attack complex (MAC) to lyse pathogens?",ans:"complement",accept:["complement","complement system","complement cascade"],exp:"Three pathways: Classical (C1q, antibody-mediated), Lectin (MBL), Alternative (spontaneous C3 hydrolysis). All converge at C3 convertase → C3b (opsonisation) → C5b-9 (MAC)."},
+{cat:"Immunology",sub:"Adaptive Immunity",d:"easy",type:"mcq",q:"Which type of lymphocyte is responsible for antibody production?",opts:["T helper cells","Cytotoxic T cells","B cells (plasma cells)","NK cells"],ans:2,exp:"B cells differentiate into antibody-secreting plasma cells. T helper cells (CD4+) help B cell activation. Cytotoxic T cells (CD8+) kill infected cells directly. NK cells are innate."},
+{cat:"Immunology",sub:"Adaptive Immunity",d:"medium",type:"mcq",q:"Which immunoglobulin class is the most abundant in serum?",opts:["IgA","IgM","IgG","IgE"],ans:2,exp:"IgG (~75% of serum Ig), longest half-life, secondary response, crosses placenta, activates complement, opsonises. IgM = first response. IgA = mucosal. IgE = allergy/parasites."},
+{cat:"Immunology",sub:"Adaptive Immunity",d:"hard",type:"short",q:"MHC class I molecules present intracellular antigens to which type of T cell?",ans:"CD8",accept:["cd8","cd8+","cd8 t cells","cytotoxic t cells","cytotoxic","cd8 positive"],exp:"MHC I (all nucleated cells) presents endogenous antigens to CD8+ cytotoxic T cells. MHC II (APCs only) presents exogenous antigens to CD4+ helper T cells."},
+{cat:"Immunology",sub:"Adaptive Immunity",d:"medium",type:"short",q:"What type of cell is the most potent antigen-presenting cell?",ans:"dendritic cell",accept:["dendritic cell","dendritic cells","dendritic"],exp:"Dendritic cells capture antigen in tissues, migrate to lymph nodes, and present on MHC II to CD4+ T cells. Langerhans cells are DCs in the epidermis."},
+{cat:"Immunology",sub:"Hypersensitivity",d:"medium",type:"mcq",q:"Anaphylaxis is an example of which type of hypersensitivity reaction?",opts:["Type I (immediate)","Type II (cytotoxic)","Type III (immune complex)","Type IV (delayed)"],ans:0,exp:"Type I: IgE-mediated, mast cell degranulation. Type II: IgG/IgM vs cell surfaces. Type III: immune complex deposition. Type IV: T-cell mediated, delayed (48-72 hrs)."},
+{cat:"Immunology",sub:"Hypersensitivity",d:"hard",type:"short",q:"The tuberculin (Mantoux) skin test is an example of which type of hypersensitivity?",ans:"type IV",accept:["type iv","type 4","iv","4","delayed","delayed type hypersensitivity","type iv delayed"],exp:"Type IV is T-cell mediated (no antibodies). PPD injection → sensitised T cells recruit macrophages → induration at 48-72 hours. Also: contact dermatitis, granulomas."},
+
+// ──────── MICROBIOLOGY ────────
+{cat:"Microbiology",sub:"Bacteriology",d:"easy",type:"mcq",q:"Gram-positive bacteria stain which colour on Gram staining?",opts:["Red/pink","Blue/purple","Green","No colour"],ans:1,exp:"Gram-positive have thick peptidoglycan → retain crystal violet → blue/purple. Gram-negative have thin peptidoglycan + outer membrane → lose crystal violet → take up safranin → red/pink."},
+{cat:"Microbiology",sub:"Bacteriology",d:"medium",type:"short",q:"Staphylococcus aureus produces the enzyme coagulase. Is Staphylococcus epidermidis coagulase-positive or coagulase-negative?",ans:"coagulase-negative",accept:["coagulase-negative","coagulase negative","negative","coag negative"],exp:"S. aureus = coagulase-positive. S. epidermidis and S. saprophyticus = coagulase-negative. S. epidermidis causes prosthetic device infections (biofilm)."},
+{cat:"Microbiology",sub:"Bacteriology",d:"medium",type:"mcq",q:"Which organism is the most common cause of community-acquired pneumonia?",opts:["Staphylococcus aureus","Mycobacterium tuberculosis","Streptococcus pneumoniae","Haemophilus influenzae"],ans:2,exp:"S. pneumoniae is a Gram-positive diplococcus, alpha-haemolytic, optochin-sensitive, with a polysaccharide capsule. Also causes meningitis and otitis media."},
+{cat:"Microbiology",sub:"Bacteriology",d:"hard",type:"short",q:"Which toxin produced by Clostridium difficile is the main cause of pseudomembranous colitis?",ans:"toxin B",accept:["toxin b","toxin a and b","toxins a and b","toxin a & b","b"],exp:"Toxin A (enterotoxin) and toxin B (cytotoxin, more potent). Typically follows antibiotic use. Treatment: oral vancomycin or fidaxomicin."},
+{cat:"Microbiology",sub:"Bacteriology",d:"medium",type:"mcq",q:"E. coli is the most common cause of which type of infection?",opts:["Meningitis in adults","Skin abscess","Urinary tract infection (UTI)","Pneumonia"],ans:2,exp:"E. coli (Gram-negative bacillus) is the #1 cause of UTI. Uropathogenic E. coli (UPEC) have P fimbriae for adhering to uroepithelium."},
+{cat:"Microbiology",sub:"Virology",d:"easy",type:"mcq",q:"HIV primarily infects which type of immune cell?",opts:["B lymphocytes","CD8+ T cells","CD4+ T helper cells","Neutrophils"],ans:2,exp:"HIV binds CD4 receptors (using gp120) and co-receptors (CCR5 or CXCR4). Progressive CD4+ depletion → AIDS (CD4 <200 cells/μL)."},
+{cat:"Microbiology",sub:"Virology",d:"medium",type:"short",q:"What enzyme do retroviruses (like HIV) use to convert their RNA genome into DNA?",ans:"reverse transcriptase",accept:["reverse transcriptase","rt","RNA-dependent DNA polymerase"],exp:"Reverse transcriptase converts viral ssRNA → dsDNA, then integrase inserts it into host genome. RT is error-prone → high mutation rates. NRTIs and NNRTIs target RT."},
+
+// ──────── PATHOLOGY ────────
+{cat:"Pathology",sub:"Cell Injury",d:"easy",type:"mcq",q:"Irreversible cell injury is characterised by which of the following?",opts:["Cell swelling","Loss of microvilli","Mitochondrial membrane damage","Ribosome detachment from ER"],ans:2,exp:"Irreversible: mitochondrial membrane damage (loss of ATP regeneration), nuclear changes (pyknosis, karyorrhexis, karyolysis), and plasma membrane rupture. The 'point of no return' is massive calcium influx."},
+{cat:"Pathology",sub:"Cell Injury",d:"medium",type:"short",q:"What type of necrosis is most common and is seen in organs like the heart and kidney after ischaemia?",ans:"coagulative",accept:["coagulative","coagulative necrosis"],exp:"Coagulative necrosis: architecture preserved initially ('ghost outline'). Other types: liquefactive (brain), caseous (TB), fat necrosis (pancreas), fibrinoid (vasculitis)."},
+{cat:"Pathology",sub:"Inflammation",d:"easy",type:"mcq",q:"The five cardinal signs of acute inflammation are rubor, calor, tumor, dolor, and:",opts:["Pruritus","Functio laesa","Pallor","Oedema"],ans:1,exp:"Rubor (redness), Calor (heat), Tumor (swelling), Dolor (pain), Functio laesa (loss of function — Virchow)."},
+{cat:"Pathology",sub:"Inflammation",d:"medium",type:"mcq",q:"Granulomatous inflammation is characterised by:",opts:["Abundant neutrophils","Epithelioid macrophages and giant cells","IgE and mast cell degranulation","Fibrin deposition"],ans:1,exp:"Granulomas = epithelioid macrophages + Langhans giant cells + lymphocytes. Caseating → TB. Non-caseating → sarcoidosis. Also: Crohn's, fungal infections."},
+{cat:"Pathology",sub:"Neoplasia",d:"medium",type:"mcq",q:"Which is a characteristic feature of malignant (vs benign) tumours?",opts:["Well-defined capsule","Slow growth rate","Ability to metastasise","Low mitotic rate"],ans:2,exp:"Malignant: invasion, metastasis, rapid growth, pleomorphism, anaplasia, no capsule. Benign: encapsulated, slow growing, well differentiated, no metastasis."},
+{cat:"Pathology",sub:"Neoplasia",d:"hard",type:"short",q:"Which tumour suppressor gene is the 'guardian of the genome' and is mutated in >50% of human cancers?",ans:"p53",accept:["p53","tp53","p 53"],exp:"p53 (TP53, chromosome 17p) induces cell cycle arrest, DNA repair, or apoptosis. Li-Fraumeni syndrome = inherited TP53 mutation. Most commonly mutated gene in cancer."},
+{cat:"Pathology",sub:"Neoplasia",d:"medium",type:"mcq",q:"Metastasis to the liver is most commonly via which route?",opts:["Lymphatic spread","Haematogenous spread via portal vein","Direct invasion","Transcoelomic spread"],ans:1,exp:"Colorectal cancer metastasises to liver via the portal venous system. Liver and lungs are the most common sites for haematogenous metastases."},
+
+// ──────── GENETICS ────────
+{cat:"Genetics",sub:"Basic Genetics",d:"easy",type:"mcq",q:"Humans have how many pairs of chromosomes?",opts:["22 pairs","23 pairs","24 pairs","46 pairs"],ans:1,exp:"23 pairs: 22 autosomes + 1 pair of sex chromosomes (XX female, XY male). Gametes are haploid (23), somatic cells diploid (46)."},
+{cat:"Genetics",sub:"Basic Genetics",d:"medium",type:"short",q:"What is the term for a change in a single nucleotide in the DNA sequence?",ans:"point mutation",accept:["point mutation","single nucleotide polymorphism","snp","single nucleotide variant","substitution"],exp:"Types: silent (no AA change), missense (different AA — e.g. sickle cell), nonsense (premature stop), frameshift (insertions/deletions)."},
+{cat:"Genetics",sub:"Inheritance",d:"medium",type:"mcq",q:"Cystic fibrosis is inherited in which pattern?",opts:["Autosomal dominant","Autosomal recessive","X-linked recessive","Mitochondrial"],ans:1,exp:"CF: autosomal recessive. Most common mutation: ΔF508 in CFTR gene (chromosome 7). CFTR is a chloride channel. Carrier frequency ~1 in 25 (Caucasians)."},
+{cat:"Genetics",sub:"Inheritance",d:"hard",type:"short",q:"Haemophilia A is caused by deficiency of which clotting factor?",ans:"factor VIII",accept:["factor viii","factor 8","viii","8","fviii"],exp:"Haemophilia A (X-linked recessive) = factor VIII deficiency. Haemophilia B = factor IX deficiency. Both: prolonged aPTT, normal PT, haemarthroses."},
+{cat:"Genetics",sub:"Chromosomal",d:"easy",type:"mcq",q:"Down syndrome is caused by trisomy of which chromosome?",opts:["Chromosome 13","Chromosome 18","Chromosome 21","Chromosome X"],ans:2,exp:"Trisomy 21: intellectual disability, epicanthic folds, single palmar crease, AV septal defect, increased ALL risk. Risk increases with maternal age. Edwards = trisomy 18, Patau = trisomy 13."},
+{cat:"Genetics",sub:"Chromosomal",d:"medium",type:"short",q:"Turner syndrome has which karyotype?",ans:"45,X",accept:["45,x","45 x","45,xo","45 xo","monosomy x","45,x0"],exp:"45,X: short stature, webbed neck, shield chest, primary amenorrhoea, streak ovaries, bicuspid aortic valve, coarctation. Intelligence normal."},
+
+// ──────── CELL BIOLOGY ────────
+{cat:"Cell Biology",sub:"Cell Structure",d:"easy",type:"mcq",q:"Which organelle is the site of oxidative phosphorylation and ATP production?",opts:["Nucleus","Golgi apparatus","Mitochondria","Smooth ER"],ans:2,exp:"Mitochondria: inner membrane has ETC (complexes I-IV) and ATP synthase. Matrix has Krebs cycle enzymes and mitochondrial DNA. Maternally inherited."},
+{cat:"Cell Biology",sub:"Cell Structure",d:"medium",type:"short",q:"What is the name of the organelle responsible for protein sorting, modification, and packaging for secretion?",ans:"Golgi",accept:["golgi","golgi apparatus","golgi body","golgi complex"],exp:"Golgi receives proteins from rER (via COPII vesicles), modifies them (glycosylation, phosphorylation), sorts them into vesicles for secretion, membrane insertion, or lysosomal delivery (via mannose-6-phosphate)."},
+{cat:"Cell Biology",sub:"Cell Cycle",d:"medium",type:"mcq",q:"During which phase of the cell cycle does DNA replication occur?",opts:["G1","S phase","G2","M phase"],ans:1,exp:"G1 → S (DNA synthesis) → G2 → M (mitosis). G0 = quiescent. Key checkpoints: G1/S (p53/Rb), G2/M, spindle assembly."},
+{cat:"Cell Biology",sub:"Cell Cycle",d:"hard",type:"short",q:"Normal growth-promoting genes that become cancer-causing when mutated are called:",ans:"proto-oncogenes",accept:["proto-oncogenes","proto-oncogene","oncogenes","oncogene"],exp:"Proto-oncogenes → gain-of-function mutations → oncogenes. Examples: RAS (most common), MYC, HER2, BCR-ABL. One mutant copy needed (dominant). Tumour suppressors need two hits (Knudson)."},
+{cat:"Cell Biology",sub:"Apoptosis",d:"medium",type:"mcq",q:"Apoptosis is executed by which family of enzymes?",opts:["Kinases","Caspases","Lipases","Helicases"],ans:1,exp:"Caspases: initiators (8, 9) activate effectors (3, 6, 7). Extrinsic: Fas/FasL → caspase 8. Intrinsic: mitochondrial cytochrome c → caspase 9. Results in apoptotic bodies (no inflammation)."},
+
+// ──────── PUBLIC HEALTH ────────
+{cat:"Public Health",sub:"Epidemiology",d:"easy",type:"mcq",q:"Prevalence measures:",opts:["The number of new cases in a time period","The total number of existing cases at a point in time","The risk of developing disease","The mortality rate"],ans:1,exp:"Prevalence = existing cases / population. Incidence = new cases / at-risk population. Prevalence ≈ incidence × duration."},
+{cat:"Public Health",sub:"Epidemiology",d:"medium",type:"short",q:"What measure of association is used in cohort studies to compare disease incidence in exposed vs unexposed groups?",ans:"relative risk",accept:["relative risk","rr","risk ratio"],exp:"RR = incidence in exposed / incidence in unexposed. RR >1 = increased risk. For case-control studies, use odds ratio (OR)."},
+{cat:"Public Health",sub:"Epidemiology",d:"medium",type:"mcq",q:"In a screening test, sensitivity refers to:",opts:["The probability of a negative test given no disease","The probability of a positive test given disease is present","The probability of disease given a positive test","The proportion of true results among all results"],ans:1,exp:"Sensitivity = TP/(TP+FN). Specificity = TN/(TN+FP). SnNOut (high sensitivity rules OUT). SpPIn (high specificity rules IN)."},
+{cat:"Public Health",sub:"Evidence-Based Medicine",d:"hard",type:"mcq",q:"Which study design provides the highest level of evidence?",opts:["Case report","Cross-sectional study","Randomised controlled trial (RCT)","Systematic review with meta-analysis"],ans:3,exp:"Hierarchy: Systematic review/meta-analysis → RCTs → Cohort → Case-control → Cross-sectional → Case series → Expert opinion."},
+{cat:"Public Health",sub:"Ethics",d:"easy",type:"mcq",q:"The four pillars of medical ethics are autonomy, beneficence, non-maleficence, and:",opts:["Confidentiality","Justice","Veracity","Fidelity"],ans:1,exp:"Beauchamp & Childress: Autonomy, Beneficence, Non-maleficence, Justice (fair distribution of resources)."},
+
+// ──────── HAEMATOLOGY ────────
+{cat:"Haematology",sub:"Anaemia",d:"easy",type:"mcq",q:"Iron deficiency anaemia shows which type of red blood cells?",opts:["Macrocytic, normochromic","Microcytic, hypochromic","Normocytic, normochromic","Megaloblastic"],ans:1,exp:"Iron deficiency → microcytic (MCV <80 fL), hypochromic (pale). Iron studies: ↓ferritin, ↓serum iron, ↑TIBC. Other microcytic causes: thalassaemia, sideroblastic."},
+{cat:"Haematology",sub:"Anaemia",d:"medium",type:"short",q:"Deficiency of vitamin B12 or folate causes which type of anaemia (based on cell size)?",ans:"megaloblastic",accept:["megaloblastic","macrocytic","megaloblastic anaemia","macrocytic anaemia"],exp:"Megaloblastic: macrocytic (MCV >100 fL), oval macrocytes, hypersegmented neutrophils. B12 deficiency also causes subacute combined degeneration of the cord."},
+{cat:"Haematology",sub:"Coagulation",d:"medium",type:"mcq",q:"Warfarin inhibits which vitamin to reduce clotting factor production?",opts:["Vitamin A","Vitamin C","Vitamin D","Vitamin K"],ans:3,exp:"Warfarin inhibits VKORC1, preventing vitamin K regeneration needed for factors II, VII, IX, X and proteins C & S. Monitored by PT/INR. Reversed by vitamin K, PCC, or FFP."},
+{cat:"Haematology",sub:"Coagulation",d:"hard",type:"short",q:"Which clotting pathway is measured by the prothrombin time (PT)?",ans:"extrinsic",accept:["extrinsic","extrinsic pathway"],exp:"PT = extrinsic (VII) + common pathway. aPTT = intrinsic (XII, XI, IX, VIII) + common pathway. PT = PenT = exTrinsic."},
+{cat:"Haematology",sub:"Coagulation",d:"medium",type:"mcq",q:"Von Willebrand factor's main roles are:",opts:["Activates factor X directly","Carries factor VIII and aids platelet adhesion","Inhibits fibrinolysis","Converts fibrinogen to fibrin"],ans:1,exp:"vWF: (1) binds collagen + GPIb on platelets → adhesion, (2) carries/stabilises factor VIII. vWD → prolonged bleeding time + prolonged aPTT. Treat with DDAVP."},
+
+// ──────── CLINICAL SKILLS ────────
+{cat:"Clinical Skills",sub:"Vital Signs",d:"easy",type:"mcq",q:"What is the normal adult resting heart rate range?",opts:["40-60 bpm","60-100 bpm","80-120 bpm","100-140 bpm"],ans:1,exp:"Normal: 60-100 bpm. Bradycardia: <60 (can be normal in athletes). Tachycardia: >100."},
+{cat:"Clinical Skills",sub:"Vital Signs",d:"easy",type:"short",q:"What is a normal adult systolic blood pressure (upper limit of normal, in mmHg)?",ans:"140",accept:["140","120","120/80","140/90","120-140","<140"],exp:"Normal: <120/80. Hypertension: ≥140/90 (clinic). NICE recommends ABPM to confirm diagnosis."},
+{cat:"Clinical Skills",sub:"Acid-Base",d:"medium",type:"mcq",q:"A patient with pH 7.28, PaCO2 70 mmHg, normal HCO3− has which disturbance?",opts:["Metabolic acidosis","Metabolic alkalosis","Respiratory acidosis","Respiratory alkalosis"],ans:2,exp:"pH <7.35 = acidosis. High PaCO2 = respiratory cause. Normal HCO3− = uncompensated (acute). Causes: COPD, neuromuscular disease, opioid OD."},
+{cat:"Clinical Skills",sub:"Acid-Base",d:"hard",type:"short",q:"What is the normal blood pH range?",ans:"7.35-7.45",accept:["7.35-7.45","7.4","7.35 to 7.45","7.35–7.45"],exp:"Normal: 7.35-7.45 (mean 7.40). <7.35 = acidaemia. >7.45 = alkalaemia. <6.8 or >7.8 = incompatible with life."},
+{cat:"Clinical Skills",sub:"Fluids",d:"medium",type:"mcq",q:"Normal saline (0.9% NaCl) has an osmolarity closest to:",opts:["150 mOsm/L","308 mOsm/L","500 mOsm/L","50 mOsm/L"],ans:1,exp:"0.9% NaCl ≈ 308 mOsm/L (isotonic with plasma ~285-295). Distributes into ECF only. Hartmann's is a more physiological alternative."},
+];
+
+// ═══════════════════════════════════
+// APP LOGIC
+// ═══════════════════════════════════
+const cats = ["All", ...new Set(Q.map(q=>q.cat))];
+const modes = ["All","MCQ Only","Short Answer Only"];
+let S = {cat:"All",mode:"All",idx:0,ok:0,no:0,streak:0,best:0,done:false,deck:[],answered:false};
+
+// Load saved progress
+try {
+    const saved = JSON.parse(localStorage.getItem('medrevise_state'));
+    if (saved && saved.cat) {
+        S.ok = saved.ok || 0;
+        S.no = saved.no || 0;
+        S.best = saved.best || 0;
+    }
+} catch(e) {}
+
+function saveState() {
+    try { localStorage.setItem('medrevise_state', JSON.stringify({ok:S.ok,no:S.no,best:S.best,cat:S.cat})); } catch(e) {}
+}
+
+function shuffle(a){const b=[...a];for(let i=b.length-1;i>0;i--){const j=Math.floor(Math.random()*(i+1));[b[i],b[j]]=[b[j],b[i]]}return b}
+
+function buildDeck(){
+    let d=S.cat==="All"?Q:Q.filter(q=>q.cat===S.cat);
+    if(S.mode==="MCQ Only")d=d.filter(q=>q.type==="mcq");
+    else if(S.mode==="Short Answer Only")d=d.filter(q=>q.type==="short");
+    S.deck=shuffle(d);S.idx=0;S.ok=0;S.no=0;S.streak=0;S.answered=false;
+}
+
+function renderModeTabs(){
+    document.getElementById("modeTabs").innerHTML=modes.map(m=>`<div class="mode-tab ${S.mode===m?'active':''}" onclick="setMode('${m}')">${m}</div>`).join("");
+}
+function renderCatTabs(){
+    document.getElementById("catTabs").innerHTML=cats.map(c=>{
+        let d=c==="All"?Q:Q.filter(q=>q.cat===c);
+        if(S.mode==="MCQ Only")d=d.filter(q=>q.type==="mcq");
+        else if(S.mode==="Short Answer Only")d=d.filter(q=>q.type==="short");
+        return `<div class="cat-tab ${S.cat===c?'active':''}" onclick="setCat('${c}')">${c}<span class="cnt">(${d.length})</span></div>`;
+    }).join("");
+}
+function setMode(m){S.mode=m;buildDeck();renderAll()}
+function setCat(c){S.cat=c;buildDeck();renderAll()}
+function restartDeck(){buildDeck();renderAll()}
+function stats(){
+    document.getElementById("sC").textContent=S.ok;
+    document.getElementById("sW").textContent=S.no;
+    document.getElementById("sS").textContent=S.streak;
+    const t=S.ok+S.no;
+    document.getElementById("sP").textContent=t?Math.round(S.ok/t*100)+"%":"0%";
+    saveState();
+}
+
+function renderAll(){renderModeTabs();renderCatTabs();renderCard();stats()}
+
+function renderCard(){
+    const m=document.getElementById("main");
+    if(!S.deck.length){m.innerHTML=`<div class="card"><div class="done"><div class="icon">📭</div><h2>No questions available</h2><p class="sub">Try changing the category or mode filter.</p></div></div>`;return}
+    if(S.idx>=S.deck.length){renderDone();return}
+    const q=S.deck[S.idx],pct=Math.round(S.idx/S.deck.length*100);
+    const letters=["A","B","C","D"];
+    let ans="";
+    if(q.type==="mcq"){
+        ans=`<div class="mcq" id="opts">${q.opts.map((o,i)=>`<div class="opt" data-i="${i}" onclick="pickMCQ(${i})"><span class="ol">${letters[i]}</span><span>${o}</span></div>`).join("")}</div>`;
+    }else{
+        ans=`<div class="sa-row"><input class="sa-in" id="saIn" placeholder="Type your answer..." autocomplete="off" onkeydown="if(event.key==='Enter')checkSA()"><button class="sa-btn" id="saBtn" onclick="checkSA()">Check</button></div>`;
+    }
+    m.innerHTML=`
+        <div class="prog-info"><span>Question ${S.idx+1} of ${S.deck.length}</span><span>${pct}%</span></div>
+        <div class="prog-bar"><div class="prog-fill" style="width:${pct}%"></div></div>
+        <div class="card">
+            <div class="card-top">
+                <div class="badge-row">
+                    <span class="badge cat">${q.cat}</span>
+                    <span class="badge sub">${q.sub}</span>
+                    <span class="badge ${q.d}">${q.d}</span>
+                </div>
+            </div>
+            <div class="card-body">
+                <div class="q-type">${q.type==="mcq"?"Multiple Choice":"Short Answer"}</div>
+                <div class="q-text">${q.q}</div>
+                ${ans}
+                <div id="fb"></div>
+                <div id="nx"></div>
+            </div>
+        </div>
+        <div class="keys">${q.type==="mcq"?'Press <kbd>A</kbd><kbd>B</kbd><kbd>C</kbd><kbd>D</kbd> to select':'Press <kbd>Enter</kbd> to submit'} · <kbd>→</kbd> next</div>`;
+    S.answered=false;
+    if(q.type==="short")setTimeout(()=>{const el=document.getElementById("saIn");if(el)el.focus()},80);
+}
+
+function pickMCQ(i){
+    if(S.answered)return;S.answered=true;
+    const q=S.deck[S.idx],ok=i===q.ans;
+    document.querySelectorAll(".opt").forEach((el,j)=>{
+        el.classList.add("dis");
+        if(j===q.ans)el.classList.add("ok");
+        if(j===i&&!ok)el.classList.add("no");
+    });
+    feedback(ok,q);
+}
+
+function checkSA(){
+    if(S.answered)return;
+    const inp=document.getElementById("saIn"),v=inp.value.trim().toLowerCase();
+    if(!v)return;S.answered=true;
+    inp.disabled=true;document.getElementById("saBtn").disabled=true;
+    const q=S.deck[S.idx],ok=q.accept.some(a=>v===a.toLowerCase());
+    inp.style.borderColor=ok?"var(--correct)":"var(--wrong)";
+    inp.style.background=ok?"var(--correct-bg)":"var(--wrong-bg)";
+    feedback(ok,q);
+}
+
+function feedback(ok,q){
+    if(ok){S.ok++;S.streak++;if(S.streak>S.best)S.best=S.streak}else{S.no++;S.streak=0}
+    stats();
+    const ca=q.type==="mcq"?q.opts[q.ans]:q.accept[0];
+    document.getElementById("fb").innerHTML=`<div class="fb ${ok?"ok":"no"}"><div class="fb-hd">${ok?"✓ Correct!":"✗ Incorrect"}</div>${!ok?`<div>Answer: <strong>${ca}</strong></div>`:""}<div class="fb-exp">${q.exp}</div></div>`;
+    document.getElementById("nx").innerHTML=`<button class="nxt" onclick="next()">Next Question →</button>`;
+}
+
+function next(){S.idx++;renderCard();stats()}
+
+function renderDone(){
+    const m=document.getElementById("main"),t=S.deck.length,pct=t?Math.round(S.ok/t*100):0;
+    let icon="🏆",msg="Outstanding!";
+    if(pct<50){icon="📚";msg="Keep revising!"}else if(pct<70){icon="💪";msg="Good effort!"}else if(pct<90){icon="🌟";msg="Great work!"}
+    m.innerHTML=`<div class="card"><div class="done">
+        <div class="icon">${icon}</div><h2>${msg}</h2>
+        <p class="sub">${S.cat==="All"?"All Topics":S.cat} — ${S.mode}</p>
+        <div class="done-stats">
+            <div class="ds"><div class="ds-v" style="color:var(--correct)">${S.ok}</div><div class="ds-l">Correct</div></div>
+            <div class="ds"><div class="ds-v" style="color:var(--wrong)">${S.no}</div><div class="ds-l">Wrong</div></div>
+            <div class="ds"><div class="ds-v" style="color:var(--accent2)">${pct}%</div><div class="ds-l">Score</div></div>
+            <div class="ds"><div class="ds-v" style="color:#f59e0b">${S.best}</div><div class="ds-l">Best Streak</div></div>
+        </div>
+        <button class="rbtn" onclick="restartDeck()">Retry</button>
+        <button class="rbtn sec" onclick="setCat('All')">All Topics</button>
+    </div></div>`;
+}
+
+// Keyboard shortcuts
+document.addEventListener("keydown",e=>{
+    if(e.target.tagName==="INPUT")return;
+    const q=S.deck[S.idx];if(!q)return;
+    if(!S.answered&&q.type==="mcq"){
+        const km={a:0,b:1,c:2,d:3,"1":0,"2":1,"3":2,"4":3};
+        if(e.key.toLowerCase() in km)pickMCQ(km[e.key.toLowerCase()]);
+    }
+    if(S.answered&&(e.key==="ArrowRight"||e.key===" "||e.key==="Enter")){e.preventDefault();next()}
+});
+
+// Swipe support for mobile
+let touchStartX = 0;
+document.addEventListener('touchstart', e => { touchStartX = e.changedTouches[0].screenX; }, {passive:true});
+document.addEventListener('touchend', e => {
+    const dx = e.changedTouches[0].screenX - touchStartX;
+    if (dx < -60 && S.answered) next(); // swipe left = next
+}, {passive:true});
+
+buildDeck();renderAll();
+</script>
+</body>
+</html>

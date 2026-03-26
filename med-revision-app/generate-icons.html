@@ -1,0 +1,37 @@
+<!DOCTYPE html>
+<html>
+<head><title>Generate Icons</title></head>
+<body>
+<h2>Right-click each image below → "Save image as" into the icons/ folder</h2>
+<h3>icon-192.png</h3>
+<canvas id="c192" width="192" height="192"></canvas>
+<h3>icon-512.png</h3>
+<canvas id="c512" width="512" height="512"></canvas>
+<script>
+function draw(canvas) {
+  const s = canvas.width, ctx = canvas.getContext('2d');
+  // Background
+  ctx.fillStyle = '#7c6cf0';
+  ctx.beginPath();
+  ctx.roundRect(0, 0, s, s, s * 0.2);
+  ctx.fill();
+  // Cross
+  const cx = s/2, cy = s/2, w = s*0.12, h = s*0.4;
+  ctx.fillStyle = '#fff';
+  ctx.fillRect(cx - w/2, cy - h/2, w, h);
+  ctx.fillRect(cx - h/2, cy - w/2, h, w);
+  // Text
+  ctx.fillStyle = '#fff';
+  ctx.font = `bold ${s*0.11}px sans-serif`;
+  ctx.textAlign = 'center';
+  ctx.fillText('MED', cx, cy + h/2 + s*0.12);
+  // Convert to image
+  const img = new Image();
+  img.src = canvas.toDataURL('image/png');
+  canvas.parentNode.insertBefore(img, canvas.nextSibling);
+}
+draw(document.getElementById('c192'));
+draw(document.getElementById('c512'));
+</script>
+</body>
+</html>

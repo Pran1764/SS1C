@@ -1,0 +1,16 @@
+{
+  "name": "QMUL Medicine Revision",
+  "short_name": "MedRevise",
+  "description": "Year 1 Medicine revision cards for Queen Mary University of London",
+  "start_url": "./index.html",
+  "display": "standalone",
+  "background_color": "#0c0e14",
+  "theme_color": "#7c6cf0",
+  "orientation": "any",
+  "icons": [
+    { "src": "icons/icon-192.png", "sizes": "192x192", "type": "image/png", "purpose": "any maskable" },
+    { "src": "icons/icon-512.png", "sizes": "512x512", "type": "image/png", "purpose": "any maskable" }
+  ],
+  "categories": ["education", "medical"],
+  "lang": "en-GB"
+}
