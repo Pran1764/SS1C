@@ -1,0 +1,1277 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Imaginative Ideas Solutions</title>
+    <link href="https://fonts.googleapis.com/css2?family=Montserrat:wght@400;600;700;800&family=Open+Sans:wght@400;500;600&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.5.1/css/all.min.css">
+    <style>
+        *, *::before, *::after {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        :root {
+            --charcoal: #1a1a1a;
+            --dark-grey: #2D2D2D;
+            --medium-grey: #3a3a3a;
+            --light-grey: #f5f5f5;
+            --card-bg: #ffffff;
+            --green: #2E7D32;
+            --green-hover: #1b5e20;
+            --red: #C62828;
+            --red-hover: #a11b1b;
+            --text-light: #f5f5f5;
+            --text-dark: #1a1a1a;
+            --text-muted: #666;
+            --border-light: #e0e0e0;
+        }
+
+        html {
+            scroll-behavior: smooth;
+        }
+
+        body {
+            font-family: 'Open Sans', sans-serif;
+            color: var(--text-dark);
+            line-height: 1.6;
+            overflow-x: hidden;
+        }
+
+        h1, h2, h3, h4, h5, h6 {
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        a {
+            text-decoration: none;
+            color: inherit;
+        }
+
+        img {
+            max-width: 100%;
+        }
+
+        .container {
+            max-width: 1140px;
+            margin: 0 auto;
+            padding: 0 20px;
+        }
+
+        /* ========== HEADER ========== */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            z-index: 1000;
+            background: var(--charcoal);
+            padding: 0 40px;
+            height: 60px;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+        }
+
+        .logo {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .logo-circle {
+            width: 32px;
+            height: 32px;
+            background: var(--green);
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .logo-circle i {
+            color: white;
+            font-size: 14px;
+        }
+
+        .logo-text {
+            font-family: 'Montserrat', sans-serif;
+            font-weight: 700;
+            font-size: 15px;
+            color: white;
+            letter-spacing: 0.3px;
+        }
+
+        .nav-links {
+            display: flex;
+            align-items: center;
+            gap: 32px;
+            list-style: none;
+        }
+
+        .nav-links a {
+            color: #ccc;
+            font-size: 13px;
+            font-weight: 500;
+            transition: color 0.3s;
+            font-family: 'Open Sans', sans-serif;
+        }
+
+        .nav-links a:hover,
+        .nav-links a.active {
+            color: var(--green);
+        }
+
+        .hamburger {
+            display: none;
+            flex-direction: column;
+            gap: 5px;
+            cursor: pointer;
+            background: none;
+            border: none;
+            padding: 5px;
+        }
+
+        .hamburger span {
+            width: 24px;
+            height: 2px;
+            background: white;
+            transition: 0.3s;
+        }
+
+        /* ========== HERO ========== */
+        .hero {
+            position: relative;
+            min-height: 520px;
+            display: flex;
+            align-items: center;
+            background: linear-gradient(135deg, #1a1a2e 0%, #16213e 30%, #0f3460 60%, #1a1a2e 100%);
+            overflow: hidden;
+            padding-top: 60px;
+        }
+
+        .hero::before {
+            content: '';
+            position: absolute;
+            inset: 0;
+            background:
+                radial-gradient(ellipse at 20% 50%, rgba(46, 125, 50, 0.15) 0%, transparent 60%),
+                radial-gradient(ellipse at 80% 20%, rgba(15, 52, 96, 0.3) 0%, transparent 50%),
+                linear-gradient(180deg, rgba(0,0,0,0.3) 0%, rgba(0,0,0,0.5) 100%);
+        }
+
+        .hero-bg-pattern {
+            position: absolute;
+            inset: 0;
+            opacity: 0.06;
+            background-image:
+                linear-gradient(30deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff),
+                linear-gradient(150deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff),
+                linear-gradient(30deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff),
+                linear-gradient(150deg, #fff 12%, transparent 12.5%, transparent 87%, #fff 87.5%, #fff),
+                linear-gradient(60deg, #777 25%, transparent 25.5%, transparent 75%, #777 75%, #777),
+                linear-gradient(60deg, #777 25%, transparent 25.5%, transparent 75%, #777 75%, #777);
+            background-size: 80px 140px;
+            background-position: 0 0, 0 0, 40px 70px, 40px 70px, 0 0, 40px 70px;
+        }
+
+        .hero-content {
+            position: relative;
+            z-index: 2;
+            padding: 80px 40px;
+            max-width: 600px;
+        }
+
+        .hero h1 {
+            font-size: 42px;
+            font-weight: 800;
+            color: white;
+            line-height: 1.15;
+            margin-bottom: 18px;
+            font-style: italic;
+        }
+
+        .hero p {
+            color: rgba(255,255,255,0.8);
+            font-size: 14px;
+            line-height: 1.7;
+            margin-bottom: 30px;
+            max-width: 460px;
+        }
+
+        .hero-buttons {
+            display: flex;
+            gap: 14px;
+            flex-wrap: wrap;
+        }
+
+        .btn {
+            display: inline-block;
+            padding: 12px 26px;
+            border-radius: 4px;
+            font-size: 13px;
+            font-weight: 600;
+            font-family: 'Open Sans', sans-serif;
+            cursor: pointer;
+            border: none;
+            transition: all 0.3s ease;
+        }
+
+        .btn-green {
+            background: var(--green);
+            color: white;
+        }
+
+        .btn-green:hover {
+            background: var(--green-hover);
+            transform: translateY(-1px);
+        }
+
+        .btn-red {
+            background: var(--red);
+            color: white;
+        }
+
+        .btn-red:hover {
+            background: var(--red-hover);
+            transform: translateY(-1px);
+        }
+
+        /* ========== SECTIONS COMMON ========== */
+        .section {
+            padding: 70px 40px;
+        }
+
+        .section-title {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .section-subtitle {
+            color: var(--text-muted);
+            font-size: 14px;
+            margin-bottom: 45px;
+        }
+
+        /* ========== SOLUTIONS ========== */
+        .solutions {
+            background: var(--light-grey);
+        }
+
+        .solutions-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 24px;
+        }
+
+        .solution-card {
+            background: white;
+            border-radius: 8px;
+            padding: 30px 24px;
+            border-left: 4px solid var(--green);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+            transition: transform 0.3s, box-shadow 0.3s;
+        }
+
+        .solution-card:hover {
+            transform: translateY(-4px);
+            box-shadow: 0 8px 24px rgba(0,0,0,0.1);
+        }
+
+        .solution-icon {
+            width: 40px;
+            height: 40px;
+            background: rgba(46,125,50,0.1);
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            margin-bottom: 18px;
+        }
+
+        .solution-icon i {
+            color: var(--green);
+            font-size: 18px;
+        }
+
+        .solution-card h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .solution-card p {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.6;
+        }
+
+        /* ========== PROCESS ========== */
+        .process {
+            background: var(--dark-grey);
+            color: white;
+            text-align: center;
+        }
+
+        .process .section-subtitle {
+            color: rgba(255,255,255,0.6);
+        }
+
+        .process-steps {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 30px;
+            position: relative;
+        }
+
+        .process-steps::before {
+            content: '';
+            position: absolute;
+            top: 30px;
+            left: 15%;
+            right: 15%;
+            height: 2px;
+            background: rgba(255,255,255,0.15);
+        }
+
+        .process-step {
+            text-align: center;
+        }
+
+        .step-circle {
+            width: 60px;
+            height: 60px;
+            border-radius: 50%;
+            background: var(--green);
+            color: white;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-family: 'Montserrat', sans-serif;
+            font-size: 20px;
+            font-weight: 700;
+            margin: 0 auto 18px;
+            position: relative;
+            z-index: 1;
+            transition: background 0.3s;
+        }
+
+        .process-step:hover .step-circle {
+            background: var(--red);
+        }
+
+        .process-step h3 {
+            font-size: 16px;
+            font-weight: 700;
+            margin-bottom: 10px;
+        }
+
+        .process-step p {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            line-height: 1.6;
+        }
+
+        /* ========== ABOUT ========== */
+        .about {
+            background: white;
+        }
+
+        .about-layout {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 50px;
+            align-items: start;
+        }
+
+        .about-text p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.8;
+            margin-bottom: 20px;
+        }
+
+        .about-image {
+            width: 100%;
+            height: 340px;
+            border-radius: 10px;
+            overflow: hidden;
+            background: linear-gradient(135deg, #2d4a2d, #1a3a1a);
+            position: relative;
+        }
+
+        .about-image-placeholder {
+            width: 100%;
+            height: 100%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            background: linear-gradient(145deg, #3a5a3a 0%, #1e3e1e 100%);
+        }
+
+        .about-image-placeholder svg {
+            width: 120px;
+            height: 120px;
+            opacity: 0.4;
+        }
+
+        .stats-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+            margin-top: 30px;
+        }
+
+        .stat-box {
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            padding: 18px 20px;
+        }
+
+        .stat-box .stat-number {
+            font-family: 'Montserrat', sans-serif;
+            font-size: 28px;
+            font-weight: 800;
+            color: var(--text-dark);
+            display: block;
+        }
+
+        .stat-box .stat-label {
+            font-size: 11px;
+            text-transform: uppercase;
+            letter-spacing: 1.5px;
+            color: var(--text-muted);
+            font-weight: 600;
+        }
+
+        /* ========== TESTIMONIALS ========== */
+        .testimonials {
+            background: var(--light-grey);
+            text-align: center;
+        }
+
+        .testimonials .section-title {
+            margin-bottom: 45px;
+        }
+
+        .testimonials-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 24px;
+        }
+
+        .testimonial-card {
+            background: white;
+            border-radius: 10px;
+            padding: 32px 26px;
+            text-align: left;
+            box-shadow: 0 2px 8px rgba(0,0,0,0.05);
+            transition: transform 0.3s;
+        }
+
+        .testimonial-card:hover {
+            transform: translateY(-3px);
+        }
+
+        .quote-icon {
+            color: var(--red);
+            font-size: 24px;
+            margin-bottom: 16px;
+            display: block;
+        }
+
+        .testimonial-card .quote-text {
+            font-size: 13px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            font-style: italic;
+            margin-bottom: 24px;
+        }
+
+        .testimonial-author {
+            display: flex;
+            align-items: center;
+            gap: 12px;
+        }
+
+        .author-avatar {
+            width: 42px;
+            height: 42px;
+            border-radius: 50%;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-weight: 700;
+            font-size: 16px;
+            color: white;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .avatar-1 { background: var(--green); }
+        .avatar-2 { background: #5c6bc0; }
+        .avatar-3 { background: var(--red); }
+
+        .author-info .author-name {
+            font-size: 14px;
+            font-weight: 700;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .author-info .author-role {
+            font-size: 12px;
+            color: var(--text-muted);
+        }
+
+        /* ========== CONTACT ========== */
+        .contact {
+            background: white;
+        }
+
+        .contact-layout {
+            display: grid;
+            grid-template-columns: 1fr 1.2fr;
+            gap: 50px;
+        }
+
+        .contact-info h2 {
+            font-size: 28px;
+            font-weight: 700;
+            margin-bottom: 12px;
+        }
+
+        .contact-info > p {
+            font-size: 14px;
+            color: var(--text-muted);
+            line-height: 1.7;
+            margin-bottom: 30px;
+        }
+
+        .contact-detail {
+            display: flex;
+            align-items: flex-start;
+            gap: 14px;
+            margin-bottom: 22px;
+        }
+
+        .contact-detail-icon {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(46,125,50,0.1);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            flex-shrink: 0;
+        }
+
+        .contact-detail-icon i {
+            color: var(--green);
+            font-size: 14px;
+        }
+
+        .contact-detail-text h4 {
+            font-size: 14px;
+            font-weight: 600;
+            margin-bottom: 2px;
+        }
+
+        .contact-detail-text p {
+            font-size: 13px;
+            color: var(--text-muted);
+        }
+
+        .contact-form {
+            display: grid;
+            gap: 16px;
+        }
+
+        .form-row {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 16px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 12px;
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+            color: var(--text-muted);
+            margin-bottom: 6px;
+        }
+
+        .form-group input,
+        .form-group textarea {
+            width: 100%;
+            padding: 12px 14px;
+            border: 1px solid var(--border-light);
+            border-radius: 6px;
+            font-family: 'Open Sans', sans-serif;
+            font-size: 13px;
+            color: var(--text-dark);
+            background: var(--light-grey);
+            transition: border-color 0.3s, box-shadow 0.3s;
+            outline: none;
+        }
+
+        .form-group input::placeholder,
+        .form-group textarea::placeholder {
+            color: #aaa;
+        }
+
+        .form-group input:focus,
+        .form-group textarea:focus {
+            border-color: var(--green);
+            box-shadow: 0 0 0 3px rgba(46,125,50,0.1);
+        }
+
+        .form-group textarea {
+            resize: vertical;
+            min-height: 110px;
+        }
+
+        .btn-submit {
+            width: 100%;
+            padding: 14px;
+            font-size: 14px;
+            font-weight: 600;
+            border-radius: 6px;
+        }
+
+        .form-success {
+            display: none;
+            background: rgba(46,125,50,0.1);
+            color: var(--green);
+            padding: 14px;
+            border-radius: 6px;
+            text-align: center;
+            font-weight: 600;
+            font-size: 14px;
+        }
+
+        /* ========== FOOTER ========== */
+        .footer {
+            background: var(--charcoal);
+            color: rgba(255,255,255,0.7);
+            padding: 50px 40px 0;
+        }
+
+        .footer-grid {
+            display: grid;
+            grid-template-columns: 1.5fr 1fr 1fr;
+            gap: 40px;
+            padding-bottom: 40px;
+        }
+
+        .footer-brand h3 {
+            font-size: 18px;
+            font-weight: 700;
+            color: white;
+            margin-bottom: 12px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .footer-brand p {
+            font-size: 13px;
+            line-height: 1.7;
+        }
+
+        .footer h4 {
+            font-size: 14px;
+            font-weight: 600;
+            color: var(--red);
+            text-transform: uppercase;
+            letter-spacing: 1px;
+            margin-bottom: 18px;
+            font-family: 'Montserrat', sans-serif;
+        }
+
+        .footer-links {
+            list-style: none;
+        }
+
+        .footer-links li {
+            margin-bottom: 10px;
+        }
+
+        .footer-links a {
+            font-size: 13px;
+            color: rgba(255,255,255,0.6);
+            transition: color 0.3s;
+        }
+
+        .footer-links a:hover {
+            color: var(--green);
+        }
+
+        .social-icons {
+            display: flex;
+            gap: 14px;
+            margin-bottom: 18px;
+        }
+
+        .social-icons a {
+            width: 36px;
+            height: 36px;
+            border-radius: 50%;
+            background: rgba(255,255,255,0.08);
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: rgba(255,255,255,0.6);
+            font-size: 14px;
+            transition: all 0.3s;
+        }
+
+        .social-icons a:hover {
+            background: var(--green);
+            color: white;
+        }
+
+        .footer-connect .location {
+            font-size: 12px;
+            color: rgba(255,255,255,0.4);
+        }
+
+        .footer-bottom {
+            border-top: 1px solid rgba(255,255,255,0.08);
+            padding: 18px 0;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 10px;
+        }
+
+        .footer-bottom p,
+        .footer-bottom a {
+            font-size: 12px;
+            color: rgba(255,255,255,0.35);
+        }
+
+        .footer-bottom-links {
+            display: flex;
+            gap: 20px;
+        }
+
+        .footer-bottom-links a:hover {
+            color: rgba(255,255,255,0.7);
+        }
+
+        /* ========== MOBILE NAV ========== */
+        .mobile-nav {
+            display: none;
+            position: fixed;
+            top: 60px;
+            left: 0;
+            width: 100%;
+            background: var(--charcoal);
+            padding: 20px 40px;
+            z-index: 999;
+            border-top: 1px solid rgba(255,255,255,0.1);
+        }
+
+        .mobile-nav.open {
+            display: block;
+        }
+
+        .mobile-nav a {
+            display: block;
+            color: #ccc;
+            padding: 12px 0;
+            font-size: 14px;
+            font-weight: 500;
+            border-bottom: 1px solid rgba(255,255,255,0.05);
+            transition: color 0.3s;
+        }
+
+        .mobile-nav a:hover,
+        .mobile-nav a.active {
+            color: var(--green);
+        }
+
+        /* ========== ANIMATIONS ========== */
+        .fade-up {
+            opacity: 0;
+            transform: translateY(25px);
+            transition: opacity 0.6s ease, transform 0.6s ease;
+        }
+
+        .fade-up.visible {
+            opacity: 1;
+            transform: translateY(0);
+        }
+
+        /* ========== RESPONSIVE ========== */
+        @media (max-width: 1024px) {
+            .solutions-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .process-steps {
+                grid-template-columns: repeat(2, 1fr);
+            }
+            .process-steps::before {
+                display: none;
+            }
+        }
+
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 20px;
+            }
+
+            .nav-links {
+                display: none;
+            }
+
+            .hamburger {
+                display: flex;
+            }
+
+            .hero-content {
+                padding: 60px 20px;
+            }
+
+            .hero h1 {
+                font-size: 30px;
+            }
+
+            .section {
+                padding: 50px 20px;
+            }
+
+            .solutions-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .process-steps {
+                grid-template-columns: 1fr 1fr;
+            }
+
+            .about-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .about-image {
+                height: 250px;
+            }
+
+            .testimonials-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .contact-layout {
+                grid-template-columns: 1fr;
+            }
+
+            .form-row {
+                grid-template-columns: 1fr;
+            }
+
+            .footer-grid {
+                grid-template-columns: 1fr;
+                gap: 30px;
+            }
+
+            .footer {
+                padding: 40px 20px 0;
+            }
+
+            .footer-bottom {
+                flex-direction: column;
+                text-align: center;
+            }
+        }
+
+        @media (max-width: 480px) {
+            .hero h1 {
+                font-size: 26px;
+            }
+            .hero-buttons {
+                flex-direction: column;
+            }
+            .hero-buttons .btn {
+                text-align: center;
+            }
+            .stats-grid {
+                grid-template-columns: 1fr 1fr;
+            }
+            .process-steps {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <!-- HEADER -->
+    <header class="header">
+        <a href="#" class="logo">
+            <div class="logo-circle">
+                <i class="fas fa-lightbulb"></i>
+            </div>
+            <span class="logo-text">Imaginative Ideas Solutions</span>
+        </a>
+        <nav>
+            <ul class="nav-links">
+                <li><a href="#hero" class="active">Home</a></li>
+                <li><a href="#solutions">Solutions</a></li>
+                <li><a href="#process">Our Process</a></li>
+                <li><a href="#about">About Us</a></li>
+                <li><a href="#contact">Contact</a></li>
+            </ul>
+        </nav>
+        <button class="hamburger" id="hamburger" aria-label="Menu">
+            <span></span><span></span><span></span>
+        </button>
+    </header>
+
+    <!-- MOBILE NAV -->
+    <div class="mobile-nav" id="mobileNav">
+        <a href="#hero" class="active">Home</a>
+        <a href="#solutions">Solutions</a>
+        <a href="#process">Our Process</a>
+        <a href="#about">About Us</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <!-- HERO -->
+    <section class="hero" id="hero">
+        <div class="hero-bg-pattern"></div>
+        <div class="hero-content fade-up">
+            <h1>Turning Imagination Into<br>Impact</h1>
+            <p>We bridge the gap between visionary concepts and tangible market success through disciplined strategy and creative excellence.</p>
+            <div class="hero-buttons">
+                <a href="#solutions" class="btn btn-green">Explore Our Solutions</a>
+                <a href="#contact" class="btn btn-red">Get In Touch</a>
+            </div>
+        </div>
+    </section>
+
+    <!-- SOLUTIONS -->
+    <section class="section solutions" id="solutions">
+        <div class="container">
+            <h2 class="section-title fade-up">Our Solutions</h2>
+            <div class="solutions-grid">
+                <div class="solution-card fade-up">
+                    <div class="solution-icon">
+                        <i class="fas fa-chess"></i>
+                    </div>
+                    <h3>Creative Strategy</h3>
+                    <p>Crafting unique paths for brands to stand out in crowded marketplaces through data-driven insight.</p>
+                </div>
+                <div class="solution-card fade-up">
+                    <div class="solution-icon">
+                        <i class="fas fa-palette"></i>
+                    </div>
+                    <h3>Brand & Design</h3>
+                    <p>Crafting visual identities that resonate deeply and communicate your brand's core values instantly.</p>
+                </div>
+                <div class="solution-card fade-up">
+                    <div class="solution-icon">
+                        <i class="fas fa-code"></i>
+                    </div>
+                    <h3>Technology Solutions</h3>
+                    <p>Building robust digital architecture that empowers your business to scale with confidence and speed.</p>
+                </div>
+                <div class="solution-card fade-up">
+                    <div class="solution-icon">
+                        <i class="fas fa-chart-line"></i>
+                    </div>
+                    <h3>Consulting & Growth</h3>
+                    <p>Identifying untapped opportunities and implementing systems for sustainable long-term expansion.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- PROCESS -->
+    <section class="section process" id="process">
+        <div class="container">
+            <h2 class="section-title fade-up">Our Process</h2>
+            <p class="section-subtitle fade-up">A structured methodology designed to transform abstract ideas into market-ready realities.</p>
+            <div class="process-steps">
+                <div class="process-step fade-up">
+                    <div class="step-circle">1</div>
+                    <h3>Discover</h3>
+                    <p>Deep diving into your goals, audience, and the existing competitive landscape.</p>
+                </div>
+                <div class="process-step fade-up">
+                    <div class="step-circle">2</div>
+                    <h3>Design</h3>
+                    <p>Prototyping and iterative refinement to ensure visual and functional excellence.</p>
+                </div>
+                <div class="process-step fade-up">
+                    <div class="step-circle">3</div>
+                    <h3>Deliver</h3>
+                    <p>Executing with precision and launching your solution to the world.</p>
+                </div>
+                <div class="process-step fade-up">
+                    <div class="step-circle">4</div>
+                    <h3>Evolve</h3>
+                    <p>Continuous optimization based on real-world data and user feedback.</p>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ABOUT -->
+    <section class="section about" id="about">
+        <div class="container">
+            <h2 class="section-title fade-up">About Us</h2>
+            <div class="about-layout">
+                <div class="about-text fade-up">
+                    <p>Imaginative Ideas Solutions was born out of a desire to see visionary projects actually reach their potential. We combine the agility of a startup with the disciplined execution of an enterprise. Our multi-disciplinary team works at the intersection of psychology, design, and technology to build brands that matter.</p>
+                    <div class="stats-grid">
+                        <div class="stat-box">
+                            <span class="stat-number">50+</span>
+                            <span class="stat-label">Projects</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">12</span>
+                            <span class="stat-label">Industries</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">98%</span>
+                            <span class="stat-label">Satisfaction</span>
+                        </div>
+                        <div class="stat-box">
+                            <span class="stat-number">5</span>
+                            <span class="stat-label">Years</span>
+                        </div>
+                    </div>
+                </div>
+                <div class="about-image fade-up">
+                    <div class="about-image-placeholder">
+                        <svg viewBox="0 0 24 24" fill="white"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-1 17.93c-3.95-.49-7-3.85-7-7.93 0-.62.08-1.21.21-1.79L9 15v1c0 1.1.9 2 2 2v1.93zm6.9-2.54c-.26-.81-1-1.39-1.9-1.39h-1v-3c0-.55-.45-1-1-1H8v-2h2c.55 0 1-.45 1-1V7h2c1.1 0 2-.9 2-2v-.41c2.93 1.19 5 4.06 5 7.41 0 2.08-.8 3.97-2.1 5.39z"/></svg>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- TESTIMONIALS -->
+    <section class="section testimonials">
+        <div class="container">
+            <h2 class="section-title fade-up">What Our Clients Say</h2>
+            <div class="testimonials-grid">
+                <div class="testimonial-card fade-up">
+                    <span class="quote-icon"><i class="fas fa-quote-right"></i></span>
+                    <p class="quote-text">"They didn't just build us a website, they helped us redefine our entire digital presence. The growth we've seen in the first six months is staggering."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar avatar-1">M</div>
+                        <div class="author-info">
+                            <div class="author-name">Marcus Sterling</div>
+                            <div class="author-role">CEO, Apex Dynamics</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card fade-up">
+                    <span class="quote-icon"><i class="fas fa-quote-right"></i></span>
+                    <p class="quote-text">"Their attention to detail and ability to understand complex industry problems is what sets them apart. A truly imaginative and disciplined team."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar avatar-2">E</div>
+                        <div class="author-info">
+                            <div class="author-name">Elena Rodriguez</div>
+                            <div class="author-role">Founder, Verdant Labs</div>
+                        </div>
+                    </div>
+                </div>
+                <div class="testimonial-card fade-up">
+                    <span class="quote-icon"><i class="fas fa-quote-right"></i></span>
+                    <p class="quote-text">"Working with them was the best investment our brand has ever made. They turned our vague ideas into a powerful market position."</p>
+                    <div class="testimonial-author">
+                        <div class="author-avatar avatar-3">J</div>
+                        <div class="author-info">
+                            <div class="author-name">Julian Chen</div>
+                            <div class="author-role">VP Marketing, TerraLine</div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- CONTACT -->
+    <section class="section contact" id="contact">
+        <div class="container">
+            <div class="contact-layout">
+                <div class="contact-info fade-up">
+                    <h2>Let's Connect</h2>
+                    <p>Ready to turn your imagination into impact? Fill out the form or reach out directly to our New York office.</p>
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><i class="fas fa-map-marker-alt"></i></div>
+                        <div class="contact-detail-text">
+                            <h4>Our Studio</h4>
+                            <p>Area 52, Montana Street, New York, NY 10001</p>
+                        </div>
+                    </div>
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><i class="fas fa-envelope"></i></div>
+                        <div class="contact-detail-text">
+                            <h4>Email Us</h4>
+                            <p>hello@imaginativeideas.com</p>
+                        </div>
+                    </div>
+                    <div class="contact-detail">
+                        <div class="contact-detail-icon"><i class="fas fa-phone-alt"></i></div>
+                        <div class="contact-detail-text">
+                            <h4>Call Us</h4>
+                            <p>+1 (212) 555-0198</p>
+                        </div>
+                    </div>
+                </div>
+                <form class="contact-form fade-up" id="contactForm">
+                    <div class="form-row">
+                        <div class="form-group">
+                            <label for="fullName">Full Name</label>
+                            <input type="text" id="fullName" placeholder="John Doe" required>
+                        </div>
+                        <div class="form-group">
+                            <label for="email">Email</label>
+                            <input type="email" id="email" placeholder="john@example.com" required>
+                        </div>
+                    </div>
+                    <div class="form-group">
+                        <label for="subject">Subject</label>
+                        <input type="text" id="subject" placeholder="Project Inquiry" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="message">Message</label>
+                        <textarea id="message" placeholder="Tell us about your vision..." required></textarea>
+                    </div>
+                    <button type="submit" class="btn btn-red btn-submit">Send Message</button>
+                    <div class="form-success" id="formSuccess">Thank you! We'll be in touch shortly.</div>
+                </form>
+            </div>
+        </div>
+    </section>
+
+    <!-- FOOTER -->
+    <footer class="footer">
+        <div class="container">
+            <div class="footer-grid">
+                <div class="footer-brand">
+                    <h3>Imaginative Ideas</h3>
+                    <p>A multi-disciplinary agency dedicated to high-end digital solutions and creative strategy for the visionary businesses of tomorrow.</p>
+                </div>
+                <div>
+                    <h4>Navigation</h4>
+                    <ul class="footer-links">
+                        <li><a href="#about">About Us</a></li>
+                        <li><a href="#solutions">Our Solutions</a></li>
+                        <li><a href="#process">The Process</a></li>
+                        <li><a href="#">Privacy Policy</a></li>
+                    </ul>
+                </div>
+                <div class="footer-connect">
+                    <h4>Connect</h4>
+                    <div class="social-icons">
+                        <a href="#" aria-label="Facebook"><i class="fab fa-facebook-f"></i></a>
+                        <a href="#" aria-label="Twitter"><i class="fab fa-x-twitter"></i></a>
+                        <a href="#" aria-label="LinkedIn"><i class="fab fa-linkedin-in"></i></a>
+                        <a href="#" aria-label="Instagram"><i class="fab fa-instagram"></i></a>
+                    </div>
+                    <p class="location">New York | Area 52, Montana Street</p>
+                </div>
+            </div>
+            <div class="footer-bottom">
+                <p>&copy; 2026 Imaginative Ideas Solutions | Area 52, Montana Street, New York</p>
+                <div class="footer-bottom-links">
+                    <a href="#">Terms of Service</a>
+                    <a href="#">Privacy Policy</a>
+                </div>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Mobile nav toggle
+        const hamburger = document.getElementById('hamburger');
+        const mobileNav = document.getElementById('mobileNav');
+
+        hamburger.addEventListener('click', () => {
+            mobileNav.classList.toggle('open');
+            const spans = hamburger.querySelectorAll('span');
+            if (mobileNav.classList.contains('open')) {
+                spans[0].style.transform = 'rotate(45deg) translate(5px, 5px)';
+                spans[1].style.opacity = '0';
+                spans[2].style.transform = 'rotate(-45deg) translate(5px, -5px)';
+            } else {
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+            }
+        });
+
+        // Close mobile nav on link click
+        mobileNav.querySelectorAll('a').forEach(link => {
+            link.addEventListener('click', () => {
+                mobileNav.classList.remove('open');
+                const spans = hamburger.querySelectorAll('span');
+                spans[0].style.transform = '';
+                spans[1].style.opacity = '';
+                spans[2].style.transform = '';
+            });
+        });
+
+        // Active nav link on scroll
+        const sections = document.querySelectorAll('section[id]');
+        const navLinks = document.querySelectorAll('.nav-links a, .mobile-nav a');
+
+        window.addEventListener('scroll', () => {
+            let current = '';
+            sections.forEach(section => {
+                const top = section.offsetTop - 100;
+                if (scrollY >= top) {
+                    current = section.getAttribute('id');
+                }
+            });
+            navLinks.forEach(link => {
+                link.classList.remove('active');
+                if (link.getAttribute('href') === '#' + current) {
+                    link.classList.add('active');
+                }
+            });
+        });
+
+        // Scroll reveal animation
+        const observer = new IntersectionObserver((entries) => {
+            entries.forEach(entry => {
+                if (entry.isIntersecting) {
+                    entry.target.classList.add('visible');
+                }
+            });
+        }, { threshold: 0.1, rootMargin: '0px 0px -40px 0px' });
+
+        document.querySelectorAll('.fade-up').forEach(el => observer.observe(el));
+
+        // Contact form
+        document.getElementById('contactForm').addEventListener('submit', (e) => {
+            e.preventDefault();
+            const btn = e.target.querySelector('.btn-submit');
+            const success = document.getElementById('formSuccess');
+            btn.style.display = 'none';
+            success.style.display = 'block';
+            e.target.querySelectorAll('input, textarea').forEach(f => f.value = '');
+            setTimeout(() => {
+                btn.style.display = '';
+                success.style.display = 'none';
+            }, 4000);
+        });
+
+        // Header background on scroll
+        const header = document.querySelector('.header');
+        window.addEventListener('scroll', () => {
+            if (window.scrollY > 50) {
+                header.style.boxShadow = '0 2px 20px rgba(0,0,0,0.3)';
+            } else {
+                header.style.boxShadow = 'none';
+            }
+        });
+    </script>
+</body>
+</html>
