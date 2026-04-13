@@ -1,0 +1,718 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>API Key Manager</title>
+    <style>
+        * { margin: 0; padding: 0; box-sizing: border-box; }
+
+        body {
+            font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, sans-serif;
+            background: #0f172a;
+            color: #e2e8f0;
+            min-height: 100vh;
+        }
+
+        .container {
+            max-width: 860px;
+            margin: 0 auto;
+            padding: 2rem 1rem;
+        }
+
+        header {
+            text-align: center;
+            margin-bottom: 2rem;
+        }
+
+        header h1 {
+            font-size: 1.8rem;
+            color: #f8fafc;
+            margin-bottom: 0.25rem;
+        }
+
+        header p {
+            color: #94a3b8;
+            font-size: 0.9rem;
+        }
+
+        .warning-banner {
+            background: #422006;
+            border: 1px solid #92400e;
+            border-radius: 8px;
+            padding: 0.75rem 1rem;
+            margin-bottom: 1.5rem;
+            font-size: 0.82rem;
+            color: #fbbf24;
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+        }
+
+        /* Add Key Form */
+        .add-form {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            margin-bottom: 2rem;
+        }
+
+        .add-form h2 {
+            font-size: 1.1rem;
+            margin-bottom: 1rem;
+            color: #f1f5f9;
+        }
+
+        .form-row {
+            display: flex;
+            gap: 0.75rem;
+            margin-bottom: 0.75rem;
+            flex-wrap: wrap;
+        }
+
+        .form-group {
+            flex: 1;
+            min-width: 200px;
+        }
+
+        .form-group label {
+            display: block;
+            font-size: 0.78rem;
+            color: #94a3b8;
+            margin-bottom: 0.3rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .form-group input, .form-group select {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: #0f172a;
+            border: 1px solid #334155;
+            border-radius: 6px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+            transition: border-color 0.2s;
+        }
+
+        .form-group input:focus, .form-group select:focus {
+            outline: none;
+            border-color: #3b82f6;
+        }
+
+        .btn {
+            padding: 0.6rem 1.2rem;
+            border: none;
+            border-radius: 6px;
+            font-size: 0.85rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+
+        .btn-primary {
+            background: #3b82f6;
+            color: #fff;
+        }
+
+        .btn-primary:hover { background: #2563eb; }
+
+        .btn-sm {
+            padding: 0.35rem 0.7rem;
+            font-size: 0.78rem;
+        }
+
+        .btn-ghost {
+            background: transparent;
+            color: #94a3b8;
+            border: 1px solid #334155;
+        }
+
+        .btn-ghost:hover { background: #1e293b; color: #e2e8f0; }
+
+        .btn-danger {
+            background: transparent;
+            color: #f87171;
+            border: 1px solid #7f1d1d;
+        }
+
+        .btn-danger:hover { background: #7f1d1d; color: #fecaca; }
+
+        .btn-success {
+            background: transparent;
+            color: #4ade80;
+            border: 1px solid #166534;
+        }
+
+        .btn-success:hover { background: #166534; color: #bbf7d0; }
+
+        /* Key Cards */
+        .keys-list {
+            display: flex;
+            flex-direction: column;
+            gap: 0.75rem;
+        }
+
+        .key-card {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 10px;
+            padding: 1.25rem;
+            transition: border-color 0.2s;
+        }
+
+        .key-card:hover { border-color: #475569; }
+
+        .key-header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 0.75rem;
+        }
+
+        .key-name {
+            font-weight: 600;
+            font-size: 1.05rem;
+            color: #f1f5f9;
+        }
+
+        .key-actions {
+            display: flex;
+            gap: 0.4rem;
+        }
+
+        .key-value-row {
+            display: flex;
+            align-items: center;
+            gap: 0.5rem;
+            background: #0f172a;
+            border-radius: 6px;
+            padding: 0.5rem 0.75rem;
+            margin-bottom: 0.5rem;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            word-break: break-all;
+        }
+
+        .key-value-row .key-text {
+            flex: 1;
+            color: #cbd5e1;
+        }
+
+        .key-meta {
+            display: flex;
+            gap: 1rem;
+            font-size: 0.78rem;
+            color: #64748b;
+            flex-wrap: wrap;
+        }
+
+        .key-meta span { display: flex; align-items: center; gap: 0.3rem; }
+
+        .status-dot {
+            width: 8px;
+            height: 8px;
+            border-radius: 50%;
+            display: inline-block;
+        }
+
+        .status-dot.untested { background: #64748b; }
+        .status-dot.valid { background: #4ade80; }
+        .status-dot.invalid { background: #f87171; }
+        .status-dot.testing { background: #fbbf24; animation: pulse 1s infinite; }
+
+        @keyframes pulse {
+            0%, 100% { opacity: 1; }
+            50% { opacity: 0.4; }
+        }
+
+        .empty-state {
+            text-align: center;
+            padding: 3rem 1rem;
+            color: #64748b;
+        }
+
+        .empty-state p { font-size: 1rem; margin-bottom: 0.5rem; }
+        .empty-state small { font-size: 0.82rem; }
+
+        /* Edit mode */
+        .key-card.editing .key-value-row { background: #172033; border: 1px solid #3b82f6; }
+        .key-card.editing .edit-input {
+            background: transparent;
+            border: none;
+            color: #e2e8f0;
+            font-family: 'Consolas', 'Monaco', monospace;
+            font-size: 0.85rem;
+            width: 100%;
+            outline: none;
+        }
+
+        /* Test modal */
+        .modal-overlay {
+            display: none;
+            position: fixed;
+            inset: 0;
+            background: rgba(0,0,0,0.6);
+            z-index: 100;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal-overlay.active { display: flex; }
+
+        .modal {
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 12px;
+            padding: 1.5rem;
+            width: 90%;
+            max-width: 500px;
+        }
+
+        .modal h3 { margin-bottom: 1rem; color: #f1f5f9; }
+
+        .modal .form-group { margin-bottom: 0.75rem; }
+
+        .modal-actions {
+            display: flex;
+            justify-content: flex-end;
+            gap: 0.5rem;
+            margin-top: 1rem;
+        }
+
+        .test-result {
+            margin-top: 0.75rem;
+            padding: 0.75rem;
+            border-radius: 6px;
+            font-size: 0.82rem;
+            font-family: monospace;
+            max-height: 150px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .test-result.success { background: #052e16; border: 1px solid #166534; color: #86efac; display: block; }
+        .test-result.error { background: #450a0a; border: 1px solid #7f1d1d; color: #fca5a5; display: block; }
+
+        .toast {
+            position: fixed;
+            bottom: 1.5rem;
+            right: 1.5rem;
+            background: #334155;
+            color: #f1f5f9;
+            padding: 0.7rem 1.2rem;
+            border-radius: 8px;
+            font-size: 0.85rem;
+            opacity: 0;
+            transform: translateY(10px);
+            transition: all 0.3s;
+            z-index: 200;
+        }
+
+        .toast.show { opacity: 1; transform: translateY(0); }
+
+        .search-bar {
+            margin-bottom: 1rem;
+        }
+
+        .search-bar input {
+            width: 100%;
+            padding: 0.6rem 0.75rem;
+            background: #1e293b;
+            border: 1px solid #334155;
+            border-radius: 8px;
+            color: #e2e8f0;
+            font-size: 0.9rem;
+        }
+
+        .search-bar input:focus { outline: none; border-color: #3b82f6; }
+
+        @media (max-width: 600px) {
+            .form-row { flex-direction: column; }
+            .form-group { min-width: 100%; }
+            .key-actions { flex-wrap: wrap; }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <header>
+            <h1>API Key Manager</h1>
+            <p>Store, manage, and test your API keys locally</p>
+        </header>
+
+        <div class="warning-banner">
+            <span>&#9888;</span>
+            Keys are stored in your browser's localStorage. Do not use this on shared or public computers.
+        </div>
+
+        <!-- Add Key Form -->
+        <div class="add-form">
+            <h2>Add New Key</h2>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Name</label>
+                    <input type="text" id="keyName" placeholder="e.g. OpenAI Production">
+                </div>
+                <div class="form-group">
+                    <label>API Key</label>
+                    <input type="password" id="keyValue" placeholder="sk-...">
+                </div>
+            </div>
+            <div class="form-row">
+                <div class="form-group">
+                    <label>Test URL (optional)</label>
+                    <input type="text" id="keyTestUrl" placeholder="https://api.example.com/v1/models">
+                </div>
+                <div class="form-group">
+                    <label>Header Name</label>
+                    <input type="text" id="keyHeaderName" placeholder="Authorization" value="Authorization">
+                </div>
+                <div class="form-group">
+                    <label>Header Value Prefix</label>
+                    <input type="text" id="keyHeaderPrefix" placeholder="Bearer" value="Bearer">
+                </div>
+            </div>
+            <button class="btn btn-primary" onclick="addKey()">Add Key</button>
+        </div>
+
+        <!-- Search -->
+        <div class="search-bar">
+            <input type="text" id="searchInput" placeholder="Search keys..." oninput="renderKeys()">
+        </div>
+
+        <!-- Keys List -->
+        <div class="keys-list" id="keysList"></div>
+    </div>
+
+    <!-- Test Modal -->
+    <div class="modal-overlay" id="testModal">
+        <div class="modal">
+            <h3>Test API Key</h3>
+            <div class="form-group">
+                <label>Test URL</label>
+                <input type="text" id="testUrl" placeholder="https://api.example.com/v1/models">
+            </div>
+            <div class="form-group">
+                <label>HTTP Method</label>
+                <select id="testMethod">
+                    <option value="GET">GET</option>
+                    <option value="POST">POST</option>
+                </select>
+            </div>
+            <div class="form-group">
+                <label>Header</label>
+                <input type="text" id="testHeader" readonly>
+            </div>
+            <div class="test-result" id="testResult"></div>
+            <div class="modal-actions">
+                <button class="btn btn-ghost btn-sm" onclick="closeTestModal()">Cancel</button>
+                <button class="btn btn-success btn-sm" id="runTestBtn" onclick="runTest()">Send Request</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <script>
+        const STORAGE_KEY = 'api_key_manager_keys';
+        let currentTestId = null;
+
+        function loadKeys() {
+            try {
+                return JSON.parse(localStorage.getItem(STORAGE_KEY)) || [];
+            } catch {
+                return [];
+            }
+        }
+
+        function saveKeys(keys) {
+            localStorage.setItem(STORAGE_KEY, JSON.stringify(keys));
+        }
+
+        function generateId() {
+            return Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+        }
+
+        function showToast(msg) {
+            const t = document.getElementById('toast');
+            t.textContent = msg;
+            t.classList.add('show');
+            setTimeout(() => t.classList.remove('show'), 2000);
+        }
+
+        function maskKey(key) {
+            if (key.length <= 8) return '*'.repeat(key.length);
+            return key.slice(0, 4) + '*'.repeat(Math.min(key.length - 8, 20)) + key.slice(-4);
+        }
+
+        function addKey() {
+            const name = document.getElementById('keyName').value.trim();
+            const value = document.getElementById('keyValue').value.trim();
+            const testUrl = document.getElementById('keyTestUrl').value.trim();
+            const headerName = document.getElementById('keyHeaderName').value.trim() || 'Authorization';
+            const headerPrefix = document.getElementById('keyHeaderPrefix').value.trim();
+
+            if (!name || !value) {
+                showToast('Name and API Key are required');
+                return;
+            }
+
+            const keys = loadKeys();
+            keys.push({
+                id: generateId(),
+                name,
+                value,
+                testUrl,
+                headerName,
+                headerPrefix,
+                status: 'untested',
+                createdAt: new Date().toISOString(),
+                updatedAt: new Date().toISOString()
+            });
+            saveKeys(keys);
+
+            document.getElementById('keyName').value = '';
+            document.getElementById('keyValue').value = '';
+            document.getElementById('keyTestUrl').value = '';
+            document.getElementById('keyHeaderName').value = 'Authorization';
+            document.getElementById('keyHeaderPrefix').value = 'Bearer';
+
+            showToast('Key added');
+            renderKeys();
+        }
+
+        function deleteKey(id) {
+            if (!confirm('Delete this API key?')) return;
+            const keys = loadKeys().filter(k => k.id !== id);
+            saveKeys(keys);
+            showToast('Key deleted');
+            renderKeys();
+        }
+
+        function copyKey(id) {
+            const key = loadKeys().find(k => k.id === id);
+            if (key) {
+                navigator.clipboard.writeText(key.value).then(() => showToast('Copied to clipboard'));
+            }
+        }
+
+        function toggleReveal(id) {
+            const el = document.querySelector(`[data-key-id="${id}"] .key-text`);
+            const btn = document.querySelector(`[data-key-id="${id}"] .reveal-btn`);
+            const key = loadKeys().find(k => k.id === id);
+            if (!el || !key) return;
+
+            if (el.dataset.revealed === 'true') {
+                el.textContent = maskKey(key.value);
+                el.dataset.revealed = 'false';
+                btn.textContent = 'Reveal';
+            } else {
+                el.textContent = key.value;
+                el.dataset.revealed = 'true';
+                btn.textContent = 'Hide';
+            }
+        }
+
+        function startEdit(id) {
+            const card = document.querySelector(`[data-key-id="${id}"]`);
+            const key = loadKeys().find(k => k.id === id);
+            if (!card || !key) return;
+
+            card.classList.add('editing');
+            const valueRow = card.querySelector('.key-value-row');
+            valueRow.innerHTML = `
+                <input class="edit-input" id="editName-${id}" value="${escapeHtml(key.name)}" placeholder="Name">
+            `;
+
+            const metaRow = card.querySelector('.key-meta');
+            metaRow.innerHTML = `
+                <input class="edit-input" id="editValue-${id}" value="${escapeHtml(key.value)}" placeholder="API Key" style="margin-bottom:0.4rem">
+                <input class="edit-input" id="editUrl-${id}" value="${escapeHtml(key.testUrl || '')}" placeholder="Test URL">
+            `;
+
+            const actions = card.querySelector('.key-actions');
+            actions.innerHTML = `
+                <button class="btn btn-success btn-sm" onclick="saveEdit('${id}')">Save</button>
+                <button class="btn btn-ghost btn-sm" onclick="renderKeys()">Cancel</button>
+            `;
+        }
+
+        function saveEdit(id) {
+            const keys = loadKeys();
+            const key = keys.find(k => k.id === id);
+            if (!key) return;
+
+            const name = document.getElementById(`editName-${id}`).value.trim();
+            const value = document.getElementById(`editValue-${id}`).value.trim();
+            const url = document.getElementById(`editUrl-${id}`).value.trim();
+
+            if (!name || !value) {
+                showToast('Name and key are required');
+                return;
+            }
+
+            key.name = name;
+            key.value = value;
+            key.testUrl = url;
+            key.updatedAt = new Date().toISOString();
+
+            saveKeys(keys);
+            showToast('Key updated');
+            renderKeys();
+        }
+
+        function openTestModal(id) {
+            const key = loadKeys().find(k => k.id === id);
+            if (!key) return;
+
+            currentTestId = id;
+            document.getElementById('testUrl').value = key.testUrl || '';
+            const prefix = key.headerPrefix ? key.headerPrefix + ' ' : '';
+            document.getElementById('testHeader').value = `${key.headerName}: ${prefix}${maskKey(key.value)}`;
+            document.getElementById('testResult').className = 'test-result';
+            document.getElementById('testResult').style.display = 'none';
+            document.getElementById('testModal').classList.add('active');
+        }
+
+        function closeTestModal() {
+            document.getElementById('testModal').classList.remove('active');
+            currentTestId = null;
+        }
+
+        async function runTest() {
+            const key = loadKeys().find(k => k.id === currentTestId);
+            if (!key) return;
+
+            const url = document.getElementById('testUrl').value.trim();
+            const method = document.getElementById('testMethod').value;
+
+            if (!url) {
+                showToast('Enter a test URL');
+                return;
+            }
+
+            const resultEl = document.getElementById('testResult');
+            const btn = document.getElementById('runTestBtn');
+            btn.textContent = 'Testing...';
+            btn.disabled = true;
+
+            // Update status to testing
+            updateKeyStatus(currentTestId, 'testing');
+
+            const prefix = key.headerPrefix ? key.headerPrefix + ' ' : '';
+            const headers = {};
+            headers[key.headerName] = prefix + key.value;
+
+            try {
+                const resp = await fetch(url, { method, headers });
+                const text = await resp.text();
+                let display = text;
+                try {
+                    display = JSON.stringify(JSON.parse(text), null, 2);
+                } catch {}
+
+                if (resp.ok) {
+                    resultEl.className = 'test-result success';
+                    resultEl.textContent = `${resp.status} OK\n\n${display.slice(0, 1000)}`;
+                    updateKeyStatus(currentTestId, 'valid');
+                } else {
+                    resultEl.className = 'test-result error';
+                    resultEl.textContent = `${resp.status} ${resp.statusText}\n\n${display.slice(0, 1000)}`;
+                    updateKeyStatus(currentTestId, 'invalid');
+                }
+            } catch (err) {
+                resultEl.className = 'test-result error';
+                resultEl.textContent = `Network error: ${err.message}\n\nThis may be due to CORS restrictions. Try testing from a server or use a CORS proxy.`;
+                updateKeyStatus(currentTestId, 'invalid');
+            }
+
+            resultEl.style.display = 'block';
+            btn.textContent = 'Send Request';
+            btn.disabled = false;
+            renderKeys();
+        }
+
+        function updateKeyStatus(id, status) {
+            const keys = loadKeys();
+            const key = keys.find(k => k.id === id);
+            if (key) {
+                key.status = status;
+                key.lastTested = new Date().toISOString();
+                saveKeys(keys);
+            }
+        }
+
+        function escapeHtml(str) {
+            const div = document.createElement('div');
+            div.textContent = str;
+            return div.innerHTML;
+        }
+
+        function formatDate(iso) {
+            if (!iso) return '';
+            const d = new Date(iso);
+            return d.toLocaleDateString() + ' ' + d.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit' });
+        }
+
+        function renderKeys() {
+            const search = document.getElementById('searchInput').value.toLowerCase();
+            const keys = loadKeys().filter(k => k.name.toLowerCase().includes(search));
+            const list = document.getElementById('keysList');
+
+            if (keys.length === 0) {
+                list.innerHTML = `
+                    <div class="empty-state">
+                        <p>${search ? 'No keys match your search' : 'No API keys stored yet'}</p>
+                        <small>${search ? 'Try a different search term' : 'Add your first key using the form above'}</small>
+                    </div>`;
+                return;
+            }
+
+            list.innerHTML = keys.map(k => `
+                <div class="key-card" data-key-id="${k.id}">
+                    <div class="key-header">
+                        <span class="key-name">${escapeHtml(k.name)}</span>
+                        <div class="key-actions">
+                            <button class="btn btn-ghost btn-sm reveal-btn" onclick="toggleReveal('${k.id}')">Reveal</button>
+                            <button class="btn btn-ghost btn-sm" onclick="copyKey('${k.id}')">Copy</button>
+                            <button class="btn btn-ghost btn-sm" onclick="startEdit('${k.id}')">Edit</button>
+                            <button class="btn btn-success btn-sm" onclick="openTestModal('${k.id}')">Test</button>
+                            <button class="btn btn-danger btn-sm" onclick="deleteKey('${k.id}')">Delete</button>
+                        </div>
+                    </div>
+                    <div class="key-value-row">
+                        <span class="key-text" data-revealed="false">${maskKey(k.value)}</span>
+                    </div>
+                    <div class="key-meta">
+                        <span><span class="status-dot ${k.status}"></span> ${k.status}</span>
+                        ${k.testUrl ? `<span>URL: ${escapeHtml(k.testUrl)}</span>` : ''}
+                        <span>Updated: ${formatDate(k.updatedAt)}</span>
+                        ${k.lastTested ? `<span>Tested: ${formatDate(k.lastTested)}</span>` : ''}
+                    </div>
+                </div>
+            `).join('');
+        }
+
+        // Allow Enter key to add
+        document.getElementById('keyValue').addEventListener('keydown', e => {
+            if (e.key === 'Enter') addKey();
+        });
+
+        // Close modal on overlay click
+        document.getElementById('testModal').addEventListener('click', e => {
+            if (e.target === e.currentTarget) closeTestModal();
+        });
+
+        // Close modal on Escape
+        document.addEventListener('keydown', e => {
+            if (e.key === 'Escape') closeTestModal();
+        });
+
+        // Initial render
+        renderKeys();
+    </script>
+</body>
+</html>
